@@ -46,6 +46,14 @@
         return element;
     }
 
+    const ulNode = new Element('ul', {id: 'list'}, [
+        new Element('li', {class: 'item'}, ['Item 1']),
+        new Element('li', {class: 'item'}, ['Item 2']),
+        new Element('li', {class: 'item'}, ['Item 3'])
+    ]);
+
+    console.log(ulNode);
+
 
 </script>
 </body>
