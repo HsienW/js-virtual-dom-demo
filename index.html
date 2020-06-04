@@ -6,12 +6,13 @@
 </head>
 <body>
 <script>
+    // 一個 Virtual Dom 下的 Node 展開後, 類似下面這個 element object
     // let element = {
-    //     tagName: 'ul',  //節點標籤名
+    //     tagName: 'ul',  // Node 標籤名
     //     props: {  // DOM 的屬性，用一個對象存儲鍵值對
     //         id: 'list'
     //     },
-    //     children: [  //該節點的子節點
+    //     children: [  // Node 的子節點
     //         {tagName: 'li', props: {class: 'item'}, children: ["Item 1"]},
     //         {tagName: 'li', props: {class: 'item'}, children: ["Item 2"]},
     //         {tagName: 'li', props: {class: 'item'}, children: ["Item 3"]},
@@ -28,7 +29,7 @@
         let element = document.createElement(this.tagName) // 依照 tagName 創建
         let props = this.props
 
-        for (let propName in props) { // 設定 DOM 的節點屬性
+        for (let propName in props) { // 設定 DOM 的 Node 屬性
             let propValue = props[propName]
             element.setAttribute(propName, propValue)
         }
@@ -55,6 +56,37 @@
 
     const ulRootDom = ulNode.render();
     document.body.appendChild(ulRootDom);
+
+    /* === Diff 算法 === */
+
+    function diffChildren (oldChildren, newChildren, index, patches) {
+        let leftNode = null;
+        let currentNodeIndex = index;
+        oldChildren.forEach((child, i) => {
+            let newChild = newChildren[i]
+            currentNodeIndex = (leftNode && leftNode.count) // 計算 Node 的標誌
+                ? currentNodeIndex + leftNode.count + 1
+                : currentNodeIndex + 1
+            differentCheck(child, newChild, currentNodeIndex, patches) // 深度優先的歷遍子 Node
+            leftNode = child
+        })
+    }
+
+    // 對新舊兩棵 tree 做深度優先的歷遍檢查
+    function differentCheck (oldNode, newNode, index, patches) {
+        // 對比新舊 Node 的不同處, 且記錄下來
+        patches[index] = [...];
+
+        diffChildren(oldNode.children, newNode.children, index, patches)
+    }
+
+    function diff (oldTree, newTree) {
+        let index = 0 // 當前 Node 的 Index
+        let patches = {} // 紀錄每個 Node Object 的差異
+
+        differentCheck(oldTree, newTree, index, patches)
+        return patches
+    }
 
 </script>
 </body>
