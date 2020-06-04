@@ -19,6 +19,11 @@
     //     ]
     // }
 
+    const CHANGE_NODE = 0
+    const UPDATE_NODE = 1
+    const UPDATE_PROPS = 2
+    const UPDATE_TEXT = 3
+
     const Element = function (tagName, props, children) {
         this.tagName = tagName
         this.props = props
@@ -60,7 +65,7 @@
     /* === Diff 算法 === */
 
     // 對新舊兩棵 tree 的子節點 做檢查 (深度優先)
-    function childrenDiffCheck (oldChildren, newChildren, index, patches) {
+    function childrenDiffCheck(oldChildren, newChildren, index, patches) {
         let leftNode = null; // left Node 為深度優先, 是從左邊開始往下檢查
         let currentNodeIndex = index; //0
         oldChildren.forEach((child, index) => {
@@ -76,13 +81,17 @@
     }
 
     // 對新舊兩棵 tree 做深度優先的歷遍檢查
-    function differentCheck (oldNode, newNode, index, patches) {
+    function differentCheck(oldNode, newNode, index, patches) {
         // 對比新舊 Node 的不同處, 且記錄下來
         patches[index] = [...patches];
+        patches[0] = {
+            type: UPDATE_NODE,
+            moves: [{remove or insert}, {remove or insert}, ...]
+        };
         childrenDiffCheck(oldNode.children, newNode.children, index, patches)
     }
 
-    function diff (oldTree, newTree) {
+    function diff(oldTree, newTree) {
         let index = 0 // 當前 Node 的 Index
         let patches = {} // 紀錄每個 Node Object 的差異
 
