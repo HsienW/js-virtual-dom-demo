@@ -19,7 +19,7 @@
     //     ]
     // }
 
-    const CHANGE_NODE = 0
+    const REPLACE_NODE = 0
     const UPDATE_NODE = 1
     const UPDATE_PROPS = 2
     const UPDATE_TEXT = 3
@@ -84,10 +84,6 @@
     function differentCheck(oldNode, newNode, index, patches) {
         // 對比新舊 Node 的不同處, 且記錄下來
         patches[index] = [...patches];
-        patches[0] = {
-            type: UPDATE_NODE,
-            moves: [{remove or insert}, {remove or insert}, ...]
-        };
         childrenDiffCheck(oldNode.children, newNode.children, index, patches)
     }
 
