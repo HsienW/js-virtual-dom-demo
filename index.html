@@ -19,69 +19,64 @@
     //     ]
     // }
 
-    const REPLACE_NODE = 0
-    const UPDATE_NODE = 1
-    const UPDATE_PROPS = 2
-    const UPDATE_TEXT = 3
+    /* === Create Element === */
 
     const Element = function (tagName, props, children) {
-        this.tagName = tagName
-        this.props = props
-        this.children = children
+        this.tagName = tagName;
+        this.props = props;
+        this.children = children;
     }
 
     Element.prototype.render = function () {
-        let element = document.createElement(this.tagName) // 依照 tagName 創建
-        let props = this.props
+        let element = document.createElement(this.tagName); // 依照 tagName 創建
+        let props = this.props;
 
         for (let propName in props) { // 設定 DOM 的 Node 屬性
-            let propValue = props[propName]
-            element.setAttribute(propName, propValue)
+            let propValue = props[propName];
+            element.setAttribute(propName, propValue);
         }
 
-        let children = this.children || []
+        let children = this.children || [];
 
         children.forEach((child) => {
             let childElement = (child instanceof Element)
                 ? child.render() // 如果子節點也是虛擬 DOM, 遞迴創建 DOM 結點
                 : document.createTextNode(child) // 如果字串, 只創建文字結點
             element.appendChild(childElement)
-        })
+        });
 
         return element;
     }
-
-    const ulNode = new Element('ul', {id: 'list'}, [
-        new Element('li', {class: 'item'}, ['Item 1']),
-        new Element('li', {class: 'item'}, ['Item 2']),
-        new Element('li', {class: 'item'}, ['Item 3'])
-    ]);
-
-    console.log(ulNode);
-
-    const ulRootDom = ulNode.render();
-    document.body.appendChild(ulRootDom);
 
     /* === Diff 算法 === */
 
     // 對新舊兩棵 tree 的子節點 做檢查 (深度優先)
     function childrenDiffCheck(oldChildren, newChildren, index, patches) {
-        let leftNode = null; // left Node 為深度優先, 是從左邊開始往下檢查
-        let currentNodeIndex = index; //0
+        // left Node 為深度優先, 是從左邊開始往下檢查
+        let leftNode = null;
+
+        // 最初始為 0, 因為從 tree 最上層開始
+        let currentNodeIndex = index;
+
+        // 從舊 tree 的 Children 下手
         oldChildren.forEach((child, index) => {
             // 從 newChildren 中取出對應要比較的 New Node
-            let newChild = newChildren[index];
+            let newChildNode = newChildren[index];
+
             // 計算 Node 的標誌
             currentNodeIndex = (leftNode && leftNode.count)
-                ? currentNodeIndex + leftNode.count + 1 // 若 index & count 屬性為空 => 0 + null + 1 = 1
-                : currentNodeIndex + 1 // // 若 index 為 1 => 1 + 1 = 2 以此類推
-            differentCheck(child, newChild, currentNodeIndex, patches) // 遞迴, 且深度優先的歷遍子節點
+                // 若 index & count 屬性為空 => 0 + null + 1 = 1
+                ? currentNodeIndex + leftNode.count + 1
+
+                // 若 index 為 1 => 1 + 1 = 2 以此類推
+                : currentNodeIndex + 1
+            diffCheck(child, newChildNode, currentNodeIndex, patches) // 遞迴, 且深度優先的歷遍子節點
             leftNode = child
         })
     }
 
     // 對新舊兩棵 tree 做深度優先的歷遍檢查
-    function differentCheck(oldNode, newNode, index, patches) {
+    function diffCheck(oldNode, newNode, index, patches) {
         // 對比新舊 Node 的不同處, 且記錄下來
         patches[index] = [...patches];
         childrenDiffCheck(oldNode.children, newNode.children, index, patches)
@@ -91,9 +86,78 @@
         let index = 0 // 當前 Node 的 Index
         let patches = {} // 紀錄每個 Node Object 的差異
 
-        differentCheck(oldTree, newTree, index, patches)
+        diffCheck(oldTree, newTree, index, patches)
         return patches
     }
+
+
+    /* === Patch to DOM === */
+
+    const  REPLACE  =  0 // 替換掉原來的 node, 例如把原本的 div 換成了 ul
+    const  REORDER  =  1 // 移動、刪除、新增子節點, 例如原本有一個 ul, 把它跟其他同層的 node 順序互換
+    const  PROPS  =  2 // 修改了節點的 props
+    const  TEXT  =  3 // 文字類型的 node 修改, 文字內容可能會改變, 例如本來的一個 'test' 改成 'test2'
+
+    function patch (node, patches) {
+        let checker = {index: 0}
+        patchCheck(node, checker, patches)
+    }
+
+    function patchCheck (node, checker, patches) {
+        // 從 patches 取出與當前節點的差異
+        let currentPatches = patches[checker.index]
+
+        // 若被 Check 的節點, 沒有子節點的話, 將長度歸零, 表示深度到底了
+        let length = node.childNodes ? node.childNodes.length : 0;
+
+        // 開始深度歷遍子節點
+        for (let i = 0; i < length; i++) {
+            let child = node.childNodes[i]
+            checker.index++
+
+            // 使用遞迴的方式做 Check
+            patchCheck(child, checker, patches)
+        }
+
+        // 對當前已經抓出差異點的 node 做 DOM 的改變
+        if (currentPatches) {
+            applyPatches(node, currentPatches)
+        }
+    }
+
+    function applyPatches (node, currentPatches) {
+        currentPatches.forEach((currentPatch) => {
+            switch (currentPatch.type) {
+                case REPLACE:
+                    node.parentNode.replaceChild(currentPatch.node.render(), node)
+                    break
+                case REORDER:
+                    reorderChildren(node, currentPatch.moves)
+                    break
+                case PROPS:
+                    setProps(node, currentPatch.props)
+                    break
+                case TEXT:
+                    node.textContent = currentPatch.content
+                    break
+                default:
+                    throw new Error('Unknown patch type ' + currentPatch.type)
+            }
+        })
+    }
+
+
+
+    // const ulNode = new Element('ul', {id: 'list'}, [
+    //     new Element('li', {class: 'item'}, ['Item 1']),
+    //     new Element('li', {class: 'item'}, ['Item 2']),
+    //     new Element('li', {class: 'item'}, ['Item 3'])
+    // ]);
+    //
+    // console.log(ulNode);
+    //
+    // const ulRootDom = ulNode.render();
+    // document.body.appendChild(ulRootDom);
 
 </script>
 </body>
