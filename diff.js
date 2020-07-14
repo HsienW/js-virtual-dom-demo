@@ -123,7 +123,7 @@ function childrenDiffCheck(oldChildren, newChildren, index, patches) {
             // 若 index 為 1 => 1 + 1 = 2 以此類推
             : currentNodeIndex + 1
         completeDiffCheck(child, newChildNode, currentNodeIndex, patches) // 遞迴, 且深度優先的歷遍子節點
-        leftNode = child
+        leftNode = child;
     })
 }
 
