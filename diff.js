@@ -1,3 +1,5 @@
+import * as patchType from './patch';
+
 /* === Diff 算法 === */
 
 function diff(oldTree, newTree) {
@@ -22,7 +24,7 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
         // 如果新舊節點不同, 表示真實 dom 也需刷新, 紀錄進去 Patch
         if (newNode !== oldNode) {
             // type 是 TEXT 類型
-            currentPatch.push({type: TEXT, content: newNode})
+            currentPatch.push({type: patchType.TEXT, content: newNode})
         }
         return;
     }
@@ -36,7 +38,7 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
         if (propsPatches) {
             // props 有差異, 表示真實 dom 也需刷新, 紀錄進去 Patch
             // type 是 PROPS
-            currentPatch.push({type: PROPS, props: propsPatches});
+            currentPatch.push({type: patchType.PROPS, props: propsPatches});
         }
 
         // 檢查 children. 如果新節點的 children 不是 ignore 的話, 就做 children diff check
@@ -45,7 +47,7 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
         }
     } else {
         // 新舊節點不相同時, 直接判定是差異, 紀錄進去 Patch
-        currentPatch.push({type: REPLACE, node: newNode})
+        currentPatch.push({type: patchType.REPLACE, node: newNode})
     }
 
     // 若是 currentPatch 有長度, 表示有差異, 並把記錄到的全部差異指向當前 index 的位置
