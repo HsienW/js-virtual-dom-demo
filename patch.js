@@ -87,3 +87,5 @@ function applyPatches(node, currentPatches) {
         }
     })
 }
+
+module.exports = patch;

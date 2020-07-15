@@ -2,36 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <script type="module" src="./diff.js"></script>
+    <script type="module" src="./element.js"></script>
+    <script type="module" src="./patch.js"></script>
     <title>Virtual Dom Simulation</title>
 </head>
 <body>
-<script>
+<script type="module">
+    import {CustomElement} from './element.js';
+    // import * as diff from './diff.js';
+    // import * as patch from './patch.js';
+
+
     // 一個 Virtual Dom 下的 Node 展開後, 類似下面這個 element object
-    let element = {
-        tagName: 'ul',  // Node 標籤名
-        props: {  // DOM 的屬性，用一個對象存儲鍵值對
-            id: 'list'
-        },
-        children: [  // Node 的子節點
-            {tagName: 'li', props: {class: 'item'}, children: ["Item 1"]},
-            {tagName: 'li', props: {class: 'item'}, children: ["Item 2"]},
-            {tagName: 'li', props: {class: 'item'}, children: ["Item 3"]},
-        ]
-    }
+    // let element = {
+    //     tagName: 'ul',  // Node 標籤名
+    //     props: {  // DOM 的屬性，用一個對象存儲鍵值對
+    //         id: 'list'
+    //     },
+    //     children: [  // Node 的子節點
+    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 1"]},
+    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 2"]},
+    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 3"]},
+    //     ]
+    // }
 
+    let count = 0;
 
+    const ulNode = new CustomElement('ul', {id: 'list'}, [
+        new CustomElement('li', {class: 'item'}, ['Item 1']),
+        new CustomElement('li', {class: 'item'}, ['Item 2']),
+        new CustomElement('li', {class: 'item'}, ['Item 3'])
+    ]);
 
-
-    // const ulNode = new Element('ul', {id: 'list'}, [
-    //     new Element('li', {class: 'item'}, ['Item 1']),
-    //     new Element('li', {class: 'item'}, ['Item 2']),
-    //     new Element('li', {class: 'item'}, ['Item 3'])
-    // ]);
+    console.log(ulNode);
     //
-    // console.log(ulNode);
-    //
-    // const ulRootDom = ulNode.render();
-    // document.body.appendChild(ulRootDom);
+    const ulRootDom = ulNode.render();
+    document.body.appendChild(ulRootDom);
 
     //  const createElement = function(type, props, children) {
     //      // 直接 return 一個 object, 用來產生 Virtual Dom 下的 node 結構
