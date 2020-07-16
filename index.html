@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <script type="module" src="./diff.js"></script>
-    <script type="module" src="./element.js"></script>
-    <script type="module" src="./patch.js"></script>
     <title>Virtual Dom Simulation</title>
 </head>
 <body>
 <script type="module">
     import {CustomElement} from './element.js';
-    // import * as diff from './diff.js';
-    // import * as patch from './patch.js';
-
+    import {diff} from './diff.js';
+    import {patch} from './patch.js';
+    import {customSetAttribute} from './util.js';
 
     // 一個 Virtual Dom 下的 Node 展開後, 類似下面這個 element object
     // let element = {
@@ -35,10 +32,24 @@
         new CustomElement('li', {class: 'item'}, ['Item 3'])
     ]);
 
+    const isChangeUlNode = new CustomElement('ul', {id: 'list'}, [
+        new CustomElement('li', {class: 'item'}, ['Item 1-1', 'Item 1-2', 'Item 1-3']),
+        new CustomElement('li', {class: 'item-test'}, ['Item 2-1', 'Item 2-2', 'Item 2-3']),
+        new CustomElement('li', {class: 'item'}, ['Item 3']),
+        new CustomElement('li', {class: 'item-test'}, ['Item 4'])
+    ]);
+
     console.log(ulNode);
     //
     const ulRootDom = ulNode.render();
     document.body.appendChild(ulRootDom);
+
+
+    setInterval(function () {
+        let patches = diff(ulNode, isChangeUlNode)
+        patch(ulNode.render, patches)
+    }, 3000)
+
 
     //  const createElement = function(type, props, children) {
     //      // 直接 return 一個 object, 用來產生 Virtual Dom 下的 node 結構

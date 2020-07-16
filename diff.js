@@ -1,8 +1,6 @@
-import * as patchType from './patch';
-
 /* === Diff 算法 === */
 
-function diff(oldTree, newTree) {
+export function diff(oldTree, newTree) {
     let index = 0 // 當前 Node 的 Index
     let patches = {} // 紀錄每個 Node Object 的差異
 
@@ -126,5 +124,3 @@ function childrenDiffCheck(oldChildren, newChildren, index, patches) {
         leftNode = child;
     })
 }
-
-module.exports = diff;
