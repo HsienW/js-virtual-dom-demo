@@ -1,5 +1,3 @@
-import * as util from './util';
-
 export const REPLACE = 0; // 替換掉原來的 node, 例如把原本的 div 換成了 ul
 export const REORDER = 1; // 移動、刪除、新增子節點, 例如原本有一個 ul, 把它跟其他同層的 node 順序互換
 export const PROPS = 2; // 修改了節點的 props
@@ -7,7 +5,7 @@ export const TEXT = 3; // 文字類型的 node 修改, 文字內容可能會改�
 
 /* === Patch to DOM === */
 
-function patch(node, patches) {
+export function patch(node, patches) {
     let checker = {index: 0};
     patchCheck(node, checker, patches);
 }
@@ -61,7 +59,7 @@ function setProps (node, props) {
         } else {
             // 如果 props 屬性名存在, 取出它的值, 並執行 setAttribute
             let value = props[key];
-            util.customSetAttribute(node, key, value);
+            customSetAttribute(node, key, value);
         }
     }
 }
@@ -87,5 +85,3 @@ function applyPatches(node, currentPatches) {
         }
     })
 }
-
-module.exports = patch;
