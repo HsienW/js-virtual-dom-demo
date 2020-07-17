@@ -9,7 +9,7 @@
     import {CustomElement} from './element.js';
     import {diff} from './diff.js';
     import {patch} from './patch.js';
-    import {customSetAttribute} from './util.js';
+    // import {customSetAttribute} from './util.js';
 
     // 一個 Virtual Dom 下的 Node 展開後, 類似下面這個 element object
     // let element = {
@@ -45,7 +45,7 @@
     document.body.appendChild(ulRootDom);
 
 
-    setInterval(function () {
+    setTimeout(function () {
         let patches = diff(ulNode, isChangeUlNode)
         patch(ulNode.render, patches)
     }, 3000)
