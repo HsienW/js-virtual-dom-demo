@@ -47,7 +47,7 @@
 
     setTimeout(function () {
         let patches = diff(ulNode, isChangeUlNode)
-        patch(ulNode.render, patches)
+        patch(ulRootDom, patches)
     }, 3000)
 
 
