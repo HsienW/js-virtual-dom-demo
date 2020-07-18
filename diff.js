@@ -14,14 +14,7 @@ export function diff(oldTree, newTree) {
 }
 
 function completeDiffCheck(oldNode, newNode, index, patches) {
-
-    console.log('wwwwwwwwwwwwwwwwwwwwwwwwww');
-    console.log(oldNode);
-    console.log(newNode);
-    console.log(index);
-    console.log(patches);
-
-    let currentPatch = []
+    let currentPatch = [];
 
     // node 的移除
     if (newNode === null) {
@@ -43,8 +36,6 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
     if (oldNode.tagName === newNode.tagName && oldNode.key === newNode.key) {
         // 檢查 props
         let propsPatches = propsDiffCheck(oldNode, newNode);
-        console.log('//////////////////////////');
-        console.log(propsPatches);
 
         // 如果檢查 props 後, 發現新舊兩個有差異
         if (propsPatches) {
@@ -55,7 +46,6 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
 
         // 檢查 children. 如果新節點的 children 不是 ignore 的話, 就做 children diff check
         if (!isIgnoreChildren(newNode)) {
-            console.log(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;');
             childrenDiffCheck(oldNode.children, newNode.children, index, patches, currentPatch);
         }
     } else {
@@ -67,6 +57,8 @@ function completeDiffCheck(oldNode, newNode, index, patches) {
     if (currentPatch.length) {
         patches[index] = currentPatch
     }
+
+    return currentPatch;
 }
 
 // 對新舊兩個節點的 props 做檢查
@@ -117,11 +109,6 @@ function isIgnoreChildren (node) {
 
 // 對新舊兩棵 tree 的子節點 做檢查 (深度優先)
 function childrenDiffCheck(oldChildren, newChildren, index, patches) {
-    console.log('------------------------------------');
-    console.log(oldChildren);
-    console.log(newChildren);
-    console.log(index);
-    console.log(patches);
     // left Node 為深度優先, 是從左邊開始往下檢查
     let leftNode = null;
 
@@ -129,7 +116,7 @@ function childrenDiffCheck(oldChildren, newChildren, index, patches) {
     let currentNodeIndex = index;
 
     // 若 oldChildren 不為空, 從舊 tree 的 Children 下手
-    if (!oldChildren) {
+    if (oldChildren) {
         oldChildren.forEach((child, index) => {
             // 從 newChildren 中取出對應要比較的 New Node
             let newChildNode = newChildren[index];
