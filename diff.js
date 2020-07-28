@@ -103,12 +103,13 @@ function propsDiffCheck(oldNode, newNode) {
 }
 
 // 檢查 children 屬性, 是否為 ignore
-function isIgnoreChildren (node) {
+function isIgnoreChildren(node) {
     return (node.props && node.props.hasOwnProperty('ignore'))
 }
 
 // 對新舊兩棵 tree 的子節點 做檢查 (深度優先)
-function childrenDiffCheck(oldChildren, newChildren, index, patches) {
+function childrenDiffCheck(oldChildren, newChildren, index, patches, currentPatch) {
+
     // left Node 為深度優先, 是從左邊開始往下檢查
     let leftNode = null;
 

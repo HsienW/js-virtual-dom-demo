@@ -7,10 +7,15 @@ export const TEXT = 3; // 文字類型的 node 修改, 文字內容可能會改�
 
 export function patch(node, patches) {
     let checker = {index: 0};
+    console.log('1111111111111111111111111111111111111');
     patchCheck(node, checker, patches);
 }
 
 function patchCheck(node, checker, patches) {
+    console.log('222222222222222222222222222222222222222');
+    console.log(node);
+    console.log(checker);
+    console.log(patches);
     // 從 patches 取出與當前節點的差異
     let currentPatches = patches[checker.index];
 
@@ -28,6 +33,9 @@ function patchCheck(node, checker, patches) {
 
     // 對當前已經抓出差異點的 node 做 DOM 的改變
     if (currentPatches) {
+        console.log('33333333333333333333333333333333333');
+        console.log(node);
+        console.log(currentPatches);
         applyPatches(node, currentPatches);
     }
 }
@@ -51,6 +59,7 @@ function reorderChildren(node, moves) {
 }
 
 function setProps (node, props) {
+    console.log('5555555555555555555555555555555555555555555');
     for (let key in props) {
         // void 不管後面跟什麼 value 一定回傳 undefined
         if (props[key] === void 0) {
@@ -65,6 +74,7 @@ function setProps (node, props) {
 }
 
 function applyPatches(node, currentPatches) {
+    console.log('44444444444444444444444444444');
     currentPatches.forEach((currentPatch) => {
         switch (currentPatch.type) {
             case REPLACE:
@@ -87,6 +97,7 @@ function applyPatches(node, currentPatches) {
 }
 
 const customSetAttribute = function(node, key, value) {
+    console.log('666666666666666666666666666666666666666666');
     switch (key) {
         // 如果 key 是 style, 表示是 css 屬性,直接覆蓋整個 node 的 style 屬性
         case 'style':

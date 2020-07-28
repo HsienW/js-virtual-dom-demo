@@ -5,6 +5,7 @@
     <title>Virtual Dom Simulation</title>
 </head>
 <body>
+<script type="module" src="list-diff.js"></script>
 <script type="module">
     import {CustomElement} from './element.js';
     import {diff} from './diff.js';
@@ -31,6 +32,10 @@
         new CustomElement('li', {class: 'item'}, ['Item 2']),
         new CustomElement('li', {class: 'item'}, ['Item 3'])
     ]);
+
+    console.log('viewviewviewviewviewviewviewviewviewview');
+    console.log(ulNode);
+
 
     const isChangeUlNode = new CustomElement('ul', {id: 'list'}, [
         new CustomElement('li', {class: 'item'}, ['Item 1-1', 'Item 1-2', 'Item 1-3']),
