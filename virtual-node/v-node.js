@@ -1,4 +1,4 @@
-/** 判斷一個 node 是否為 srting type **/
+/** 判斷一個 node 是否為 string type **/
 
 const TEXT_NODE = Symbol('text_node');
 
@@ -6,19 +6,20 @@ function isTextNode(type) {
     return type === TEXT_NODE;
 }
 
-/** 像一個 dom 增加屬性 **/
+/** 向一個 dom 增加屬性 **/
+
 function customSetAttribute(element, prop, value) {
-    // 檢查是否 prop 帶有事件 handler,
+    // 檢查是否 prop 帶有事件 handler
     // 若找到 on 開頭的 prop 屬性, indexOf 會回傳 index (這裡通常是0 因為都是第一個) isEventHandler = true
     // 若沒有 會是回傳 -1, isEventHandler = false
     let isEventHandler = prop.indexOf('on') === 0;
 
     if (isEventHandler) {
-        let eventName = prop.slice(2).toLowerCase();
+        // 對 element 掛上對應的 event
+        let eventName = prop.toLowerCase();
         element.addEventListener(eventName, value);
-    }
-
-    else {
+    } else {
+        // 對 element 掛上對應的一般屬性
         element.setAttribute(prop, value);
     }
 }
@@ -92,7 +93,7 @@ function virtualNodeToDOM(rootNode, parentDOM) {
     // 對傳入的 root node 取出屬性
     let {type, props, children} = rootNode;
 
-    // 當前的 virtual node render 成對應的 dom
+    // 當前的 virtual node render 成對應的 dom (後面要掛入的 root dom)
     let dom;
 
     // 若 rootNode type 為 string, 直接對 dom 掛上當前的 text node
@@ -103,11 +104,26 @@ function virtualNodeToDOM(rootNode, parentDOM) {
     else {
         dom = document.createElement(rootNode);
 
-        // 透過迴圈對 element 掛上對應得屬性
+        // 透過迴圈對 element 掛上對應的屬性
         for (let key in props) {
             customSetAttribute(dom, key, props[key]);
         }
     }
 
-    return dom
+    // 使用遞迴方式處理 rootNode 的 children, 一併掛上 dom
+    if (Array.isArray(children)) {
+        children.forEach((child) => {
+            virtualNodeToDOM(child, dom)
+        });
+    }
+
+    // 若這次處理有 parentDOM 就表示該次的 dom 需要掛入到父層節點之下
+    if (parentDOM) {
+        parentDOM.appendChild(dom);
+    }
+
+    // 最後對 rootNode 的 element 加上, 對於這次完整產出的 dom 的引用
+    rootNode.element = dom;
+
+    return dom;
 }
