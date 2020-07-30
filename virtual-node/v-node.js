@@ -26,18 +26,18 @@ function customSetAttribute(element, prop, value) {
 
 /** 一個 virtual dom 下的 node 展開後, 類似下面這個 element demo object **/
 
-let vNodeElementDemo = {
-    type: 'ul',  // Node 標籤名
-    key: 'key-1', // 作為判定 node 的唯一 key
-    props: {  // DOM 的屬性, 用一個 object 其他屬性
-        class: 'list',
-    },
-    children: [  // Node 的子節點
-        {type: 'li', key: 'li-1', props: {class: 'item'}, children: ['Item 1']},
-        {type: 'li', key: 'li-2', props: {class: 'item'}, children: ['Item 2']},
-        {type: 'li', key: 'li-3', props: {class: 'item'}, children: ['Item 3']},
-    ]
-};
+// let vNodeElementDemo = {
+//     type: 'ul',  // Node 標籤名
+//     key: 'key-1', // 作為判定 node 的唯一 key
+//     props: {  // DOM 的屬性, 用一個 object 其他屬性
+//         class: 'list',
+//     },
+//     children: [  // Node 的子節點
+//         {type: 'li', key: 'li-1', props: {class: 'item'}, children: ['Item 1']},
+//         {type: 'li', key: 'li-2', props: {class: 'item'}, children: ['Item 2']},
+//         {type: 'li', key: 'li-3', props: {class: 'item'}, children: ['Item 3']},
+//     ]
+// };
 
 /** 用來建立 virtual node 結構的 object **/
 
@@ -77,6 +77,7 @@ function createVirtualNode(type, props = {}, children = []) {
 
         // 讓每個 child 都帶有 parentNode, 可以存取自己的父層
         child.parentNode = virtualNode;
+
         return child;
     })
 
@@ -102,7 +103,8 @@ function virtualNodeToDOM(rootNode, parentDOM) {
     }
     // 若 rootNode type 為其他, 就先處理 rootNode 的每個 props, 在掛上 element
     else {
-        dom = document.createElement(rootNode);
+        console.log(type);
+        dom = document.createElement(type);
 
         // 透過迴圈對 element 掛上對應的屬性
         for (let key in props) {
@@ -113,7 +115,7 @@ function virtualNodeToDOM(rootNode, parentDOM) {
     // 使用遞迴方式處理 rootNode 的 children, 一併掛上 dom
     if (Array.isArray(children)) {
         children.forEach((child) => {
-            virtualNodeToDOM(child, dom)
+            virtualNodeToDOM(child, dom);
         });
     }
 

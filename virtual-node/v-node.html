@@ -3,8 +3,66 @@
 <head>
     <meta charset="utf-8">
     <title>Virtual Node</title>
+    <style>
+        .li-1 {
+            background: blue;
+        }
+
+        .li-2 {
+            background: yellow;
+        }
+
+        .li-3 {
+            background: red;
+        }
+    </style>
 </head>
 <body>
+<div class="list"></div>
+<script src="./v-node.js"></script>
+<script>
+    let vNodeElementDemo = {
+        type: 'ul',  // Node 標籤名
+        props: {  // DOM 的屬性, 用一個 object 其他屬性
+            key: 'key-1',
+            class: 'list',
+        },
+        children: [  // Node 的子節點
+            {
+                type: 'li',
+                props: {
+                    key: 'li-1',
+                    class: 'li-1'
+                },
+                children: ['Item 1']
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'li-2'
+                },
+                children: ['Item 2']
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-3',
+                    class: 'li-3'
+                },
+                children: ['Item 3']
+            }
+        ]
+    };
 
+    const testVNode = createVirtualNode(
+        vNodeElementDemo.type,
+        vNodeElementDemo.props,
+        vNodeElementDemo.children
+    );
+
+    let dom = virtualNodeToDOM(testVNode, null);
+    document.body.appendChild(dom);
+</script>
 </body>
 </html>
