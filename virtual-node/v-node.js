@@ -1,41 +1,20 @@
-/** 判斷一個 node 是否為 string type **/
-
-const TEXT_NODE = Symbol('text_node');
-
-function isTextNode(type) {
-    return type === TEXT_NODE;
-}
-
-/** 向一個 dom 增加屬性 **/
-
-function customSetAttribute(element, prop, value) {
-    // 檢查是否 prop 帶有事件 handler
-    // 若找到 on 開頭的 prop 屬性, indexOf 會回傳 index (這裡通常是0 因為都是第一個) isEventHandler = true
-    // 若沒有 會是回傳 -1, isEventHandler = false
-    let isEventHandler = prop.indexOf('on') === 0;
-
-    if (isEventHandler) {
-        // 對 element 掛上對應的 event
-        let eventName = prop.toLowerCase();
-        element.addEventListener(eventName, value);
-    } else {
-        // 對 element 掛上對應的一般屬性
-        element.setAttribute(prop, value);
-    }
-}
-
 /** 一個 virtual dom 下的 node 展開後, 類似下面這個 element demo object **/
 
-// let vNodeElementDemo = {
+// let nodeElement = {
 //     type: 'ul',  // Node 標籤名
-//     key: 'key-1', // 作為判定 node 的唯一 key
 //     props: {  // DOM 的屬性, 用一個 object 其他屬性
+//         key: 'key-1',
 //         class: 'list',
 //     },
 //     children: [  // Node 的子節點
-//         {type: 'li', key: 'li-1', props: {class: 'item'}, children: ['Item 1']},
-//         {type: 'li', key: 'li-2', props: {class: 'item'}, children: ['Item 2']},
-//         {type: 'li', key: 'li-3', props: {class: 'item'}, children: ['Item 3']},
+//         {
+//             type: 'li',
+//             props: {
+//                 key: 'li-1',
+//                 class: 'li-1',
+//                 value: 'I am li-1'
+//             }
+//         }
 //     ]
 // };
 
@@ -67,7 +46,7 @@ function createVirtualNode(type, props = {}, children = []) {
             child = {
                 type: TEXT_NODE,
                 props: {
-                    nodeValue: child
+                    value: child
                 },
                 children: []
             }

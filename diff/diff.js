@@ -97,19 +97,19 @@ function diff(oldNode, newNode, patches = []) {
 
     // 新舊節點都有, 且 type 相同, 表示只是它的屬性值有改變
     else {
-        // 檢查哪個屬性是有改變的
-        let attributes = diffAttribute(oldNode.props, newNode.props);
+        // 檢查哪個屬性是有改變的, 並記錄到 logAttributes
+        let logAttributes = diffAttribute(oldNode.props, newNode.props);
 
         // 用新節點的屬性, 去更換舊節點的屬性
-        if (Object.keys(attributes).length > 0) {
-            patches.push({type: UPDATE, oldNode, newNode, attributes});
+        if (Object.keys(logAttributes).length > 0) {
+            patches.push({type: UPDATE, oldNode, newNode, logAttributes});
         }
 
         // 剩餘相同的, 就覆用舊節點即可
         newNode.element = oldNode.element;
 
         // 子節點一樣執行 diff 檢查
-        console.log(diffChildren(oldNode.children, newNode.children, patches));
+        diffChildren(oldNode.children, newNode.children, patches);
     }
 
     // 回傳整個收集完的 patches
