@@ -21,6 +21,7 @@
 <div class="list"></div>
 <script src="./v-node.js"></script>
 <script src="../diff/diff.js"></script>
+<script src="../util/util.js"></script>
 <script>
 
     let oldNodeElementDemo = {
@@ -34,17 +35,9 @@
                 type: 'li',
                 props: {
                     key: 'li-1',
-                    class: 'li-1'
-                },
-                children: ['Item 1']
-            },
-            {
-                type: 'li',
-                props: {
-                    key: 'li-2',
-                    class: 'li-2'
-                },
-                children: ['Item 2']
+                    class: 'li-1',
+                    value: 'I am li-1'
+                }
             }
         ]
     };
@@ -60,25 +53,9 @@
                 type: 'li',
                 props: {
                     key: 'li-1',
-                    class: 'li-1'
-                },
-                children: ['Item 1']
-            },
-            {
-                type: 'li',
-                props: {
-                    key: 'li-2',
-                    class: 'li-2'
-                },
-                children: ['Item 2']
-            },
-            {
-                type: 'li',
-                props: {
-                    key: 'li-3',
-                    class: 'li-3'
-                },
-                children: ['Item 3']
+                    class: 'I am new class',
+                    value: 'I am new value'
+                }
             }
         ]
     };
