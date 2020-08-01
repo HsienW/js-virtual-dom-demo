@@ -20,8 +20,36 @@
 <body>
 <div class="list"></div>
 <script src="./v-node.js"></script>
+<script src="../diff/diff.js"></script>
 <script>
-    let vNodeElementDemo = {
+
+    let oldNodeElementDemo = {
+        type: 'ul',  // Node 標籤名
+        props: {  // DOM 的屬性, 用一個 object 其他屬性
+            key: 'key-1',
+            class: 'list',
+        },
+        children: [  // Node 的子節點
+            {
+                type: 'li',
+                props: {
+                    key: 'li-1',
+                    class: 'li-1'
+                },
+                children: ['Item 1']
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'li-2'
+                },
+                children: ['Item 2']
+            }
+        ]
+    };
+
+    let newNodeElementDemo = {
         type: 'ul',  // Node 標籤名
         props: {  // DOM 的屬性, 用一個 object 其他屬性
             key: 'key-1',
@@ -55,14 +83,19 @@
         ]
     };
 
-    const testVNode = createVirtualNode(
-        vNodeElementDemo.type,
-        vNodeElementDemo.props,
-        vNodeElementDemo.children
-    );
+    // const testVNode = createVirtualNode(
+    //     oldNodeElementDemo.type,
+    //     oldNodeElementDemo.props,
+    //     oldNodeElementDemo.children
+    // );
+    //
+    // let dom = virtualNodeToDOM(testVNode, null);
+    // document.body.appendChild(dom);
 
-    let dom = virtualNodeToDOM(testVNode, null);
-    document.body.appendChild(dom);
+    let patches = diff(oldNodeElementDemo, newNodeElementDemo);
+    console.log(patches);
+
+
 </script>
 </body>
 </html>
