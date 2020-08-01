@@ -11,17 +11,29 @@ const [REMOVE, REPLACE, INSERT, UPDATE, MOVE] = [0, 1, 2, 3, 4];
 /** 檢查子節點差異 **/
 
 function diffChildren(oldChildren, newChildren, patches) {
-    let count = 0;
+
+    //用來檢查舊子節點沒有, 而新子節點有的 index
+    let checkIndex = 0;
+
+    // "舊子節點" 當檢查標準開始比對
     if (oldChildren && oldChildren.length) {
         oldChildren.forEach((child, index) => {
-            count++;
-            diff(child, (newChildren && newChildren[index]) || null, patches);
+            // 每次都增加 checkIndex
+            checkIndex++;
+
+            // 把對應的當下 index 中的新子節點丟進 diff 做比對
+            diff(child, newChildren[index] || null, patches);
         });
     }
 
+    // 處理如果 "新子節點" 有多出來, 沒比較到的節點, 最後也丟進 diff 做比對
+    // 處理 type 會被判定為 INSERT (新增)
     if (newChildren && newChildren.length) {
-        while (count < newChildren.length) {
-            diff(null, newChildren[count++], patches);
+
+        // while 迴圈會在 checkIndex, 追上 newChildren.length 之前不斷丟給 diff 剩餘沒比對的
+        while (checkIndex < newChildren.length) {
+            checkIndex++;
+            diff(null, newChildren[checkIndex], patches);
         }
     }
 }
@@ -30,6 +42,7 @@ function diffChildren(oldChildren, newChildren, patches) {
 /** 檢查節點上的屬性差異 **/
 
 function diffAttribute(oldAttributes, newAttributes) {
+
     // logAttributes object 用來記錄差異
     let logAttributes = {};
 
@@ -96,7 +109,7 @@ function diff(oldNode, newNode, patches = []) {
         newNode.element = oldNode.element;
 
         // 子節點一樣執行 diff 檢查
-        diffChildren(oldNode.children, newNode.children, patches);
+        console.log(diffChildren(oldNode.children, newNode.children, patches));
     }
 
     // 回傳整個收集完的 patches
