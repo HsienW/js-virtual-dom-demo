@@ -6,7 +6,14 @@
  4. REMOVE = 移動節點 (新舊節點位子不同)
  **/
 
-const [REMOVE, REPLACE, INSERT, UPDATE, MOVE] = [0, 1, 2, 3, 4];
+// const [REMOVE, REPLACE, INSERT, UPDATE, MOVE] = [0, 1, 2, 3, 4];
+const patchesType = {
+    REMOVE: 'REMOVE',
+    REPLACE: 'REPLACE',
+    INSERT: 'INSERT',
+    UPDATE: 'UPDATE',
+    MOVE: 'MOVE'
+};
 
 /** 檢查子節點差異 **/
 
@@ -74,13 +81,13 @@ function diff(oldNode, newNode, patches = []) {
     // 若這次沒有新節點, 表示該節點沒變化
     if (!newNode) {
         // patches 紀錄不需要這個節點, 所以移除舊節點 & 它的子節點
-        patches.push({type: REMOVE, oldNode});
+        patches.push({type: patchesType.REMOVE, oldNode});
     }
 
     // 若這次沒有舊節點, 表示該節點是全新的, 紀錄上沒有
     else if (!oldNode) {
         // patches 紀錄要這個全新節點, 所以插入它 & 它的子節點
-        patches.push({type: INSERT, newNode});
+        patches.push({type: patchesType.INSERT, newNode});
 
         // 插入的子節點, 一樣執行 diff 檢查, 因為是全新節點, 所以 oldChildren 給 []
         diffChildren([], newNode.children, patches);
@@ -89,7 +96,7 @@ function diff(oldNode, newNode, patches = []) {
     // 若這次新舊節點都有, 但 type 不同, 表示節點 tag 改變, 需要整個更換
     else if (oldNode.type !== newNode.type) {
         // 用新節點更換舊節點
-        patches.push({type: REPLACE, oldNode, newNode});
+        patches.push({type: patchesType.REPLACE, oldNode, newNode});
 
         // tag 改變表示子節點全部都需要一同更換, 一樣執行 diff 檢查, 所以 oldChildren 給 []
         diffChildren([], newNode.children, patches);
@@ -102,7 +109,7 @@ function diff(oldNode, newNode, patches = []) {
 
         // 用新節點的屬性, 去更換舊節點的屬性
         if (Object.keys(logAttributes).length > 0) {
-            patches.push({type: UPDATE, oldNode, newNode, logAttributes});
+            patches.push({type: patchesType.UPDATE, oldNode, newNode, logAttributes});
         }
 
         // 剩餘相同的, 就覆用舊節點即可

@@ -1,5 +1,10 @@
 /** 把找到的差異 render 到正式的 dom 上
- 定義執行 patch render 時的重點
+ patch render 三大要素
+ 1.type = 先前在 diff 定義的種類, 這點會影響 patch 處理的先後 (重新建立 dom的優先處理)
+ 2.oldNode = 舊有已經存在的節點, 是已經正式 render 在畫面上的 element
+ 3.newNode = 新節點要畫的樣子, 還是 virtual node object, 還沒在畫面上
+
+ 執行 patch render 時的重點
  1.virtual node 的 element = 指向 virtual node 產生的真實 dom
  2.element 的初始值為 null
  3.element = 當 virtual node 與真實 dom 做為比較的引用
@@ -38,7 +43,7 @@ const doRender = {
     // 所以必須把舊節點 (已經在畫面上的真實 dom) 換成新節點
     // parentNode (父節點的引用) 也要更換
     REPLACE: function (oldNode, newNode) {
-        // 從舊節點的父層 element 取出引用
+        // 從舊節點的父節點 element 取出引用
         let parent = oldNode.parentNode.element;
         // 從舊節點自己身上 element 取出引用
         let oldElement = oldNode.element;
@@ -47,36 +52,44 @@ const doRender = {
 
         // 在要更換的新節點上刷新屬性
         customSetAttribute(newNode, newNode.props);
-        // 在舊節點的父層上插入新的 element
+        // 在舊節點的父節點上插入新的 element
         parent.insertBefore(newElement, oldElement);
-        // 接著從舊節點的父層上移除舊的 element
+        // 接著從舊節點的父節點上移除舊的 element
         parent.removeChild(oldElement);
     },
 
     // UPDATE = 節點 type 沒變, 只有屬性有變
     UPDATE: function (oldNode, newNode) {
         // 只需對 newNode 刷新 diff 檢查到的屬性改變即可
-        customSetAttribute(newNode, newNode.attributes);
+        customSetAttribute(newNode, newNode.props);
     },
 
     // INSERT = 新增節點, 舊的完全沒有這個節點
     INSERT: function (oldNode, newNode) {
-        // 只需對 newNode 插入屬性即可
+        // 對 newNode 插入屬性即可
         customSetAttribute(newNode, newNode.props);
+        // 把 newNode 執行插入真實 dom
         insertDOM(newNode);
     }
 }
 
 function renderPatchToDom(patches) {
+    // 先處理需要重新建立 dom 的 patch 類型
+    // 需要與真實 dom 做比較, 所以使用 beforeRenderReady, 先建立 dom
     patches.forEach(patch => {
+        // 取出三大要素 type, oldNode, newNode
         const {type, oldNode, newNode} = patch;
-        let handler = beforeRenderReady[type];
-        handler && handler(oldNode, newNode);
+        // 透過 type 取出對應的 handler function
+        let readyHandler = beforeRenderReady[type];
+        readyHandler(oldNode, newNode);
     });
 
+    // 把每個 patch 開始 render 到畫面上
     patches.forEach(patch => {
+        // 取出三大要素 type, oldNode, newNode
         const {type, oldNode, newNode} = patch;
-        let handler = doRender[type];
-        handler && handler(oldNode, newNode);
+        // 透過 type 取出對應的 handler function
+        let renderHandler = doRender[type];
+        renderHandler(oldNode, newNode);
     });
 }
