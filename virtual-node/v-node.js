@@ -1,22 +1,22 @@
 /** 一個 virtual dom 下的 node 展開後, 類似下面這個 element demo object **/
 
-let nodeElement = {
-    type: 'ul',  // Node 標籤名
-    props: {  // DOM 的屬性, 用一個 object 其他屬性
-        key: 'key-1',
-        class: 'list',
-    },
-    children: [  // Node 的子節點
-        {
-            type: 'li',
-            props: {
-                key: 'li-1',
-                class: 'li-1',
-                value: 'I am li-1'
-            }
-        }
-    ]
-};
+// let nodeElement = {
+//     type: 'ul',  // Node 標籤名
+//     props: {  // DOM 的屬性, 用一個 object 其他屬性
+//         key: 'key-1',
+//         class: 'list',
+//     },
+//     children: [  // Node 的子節點
+//         {
+//             type: 'li',
+//             props: {
+//                 key: 'li-1',
+//                 class: 'li-1',
+//                 value: 'I am li-1'
+//             }
+//         }
+//     ]
+// };
 
 /** 用來建立 virtual node 結構的 object **/
 
@@ -63,6 +63,24 @@ function createVirtualNode(type, props = {}, children = []) {
     return virtualNode;
 }
 
+function createVirtualRoot(data) {
+    let childrenData = data.children.map(item => {
+        return createVirtualNode(
+            item.type,
+            item.props,
+            [item]
+        )
+    });
+
+    let rootData = createVirtualNode(
+        data.type,
+        data.props,
+        childrenData
+    );
+
+    return rootData;
+}
+
 /** 用來把之前產出的 virtual node object 轉換為真實的 dom 並掛上 **/
 
 // 這邊會使用遞迴的方式執行轉換, 因為 node 結構為 tree, 適合使用
@@ -82,7 +100,6 @@ function virtualNodeToDOM(rootNode, parentDOM) {
     }
     // 若 rootNode type 為其他, 就先處理 rootNode 的每個 props, 在掛上 element
     else {
-        console.log(type);
         dom = document.createElement(type);
 
         // 透過迴圈對 element 掛上對應的屬性

@@ -3,7 +3,7 @@
  1. REPLACE = 更換節點 (全新的節點替換舊節點)
  2. INSERT = 插入節點 (新增節點)
  3. UPDATE = 刷新節點 (節點 type 沒變, 屬性有變)
- 4. REMOVE = 移動節點 (新舊節點位子不同)
+ 4. MOVE = 移動節點 (新舊節點位子不同)
  **/
 
 // const [REMOVE, REPLACE, INSERT, UPDATE, MOVE] = [0, 1, 2, 3, 4];
@@ -19,7 +19,7 @@ const patchesType = {
 
 function diffChildren(oldChildren, newChildren, patches) {
 
-    //用來檢查舊子節點沒有, 而新子節點有的 index
+    // 用來檢查舊子節點沒有, 而新子節點有的 index
     let checkIndex = 0;
 
     // "舊子節點" 當檢查標準開始比對
@@ -77,7 +77,6 @@ function diffAttribute(oldAttributes, newAttributes) {
 }
 
 function diff(oldNode, newNode, patches = []) {
-
     // 若這次沒有新節點, 表示該節點沒變化
     if (!newNode) {
         // patches 紀錄不需要這個節點, 所以移除舊節點 & 它的子節點
