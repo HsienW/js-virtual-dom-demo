@@ -1,22 +1,22 @@
 /** 一個 virtual dom 下的 node 展開後, 類似下面這個 element demo object **/
 
-// let nodeElement = {
-//     type: 'ul',  // Node 標籤名
-//     props: {  // DOM 的屬性, 用一個 object 其他屬性
-//         key: 'key-1',
-//         class: 'list',
-//     },
-//     children: [  // Node 的子節點
-//         {
-//             type: 'li',
-//             props: {
-//                 key: 'li-1',
-//                 class: 'li-1',
-//                 value: 'I am li-1'
-//             }
-//         }
-//     ]
-// };
+let nodeElement = {
+    type: 'ul',  // Node 標籤名
+    props: {  // DOM 的屬性, 用一個 object 其他屬性
+        key: 'key-1',
+        class: 'list',
+    },
+    children: [  // Node 的子節點
+        {
+            type: 'li',
+            props: {
+                key: 'li-1',
+                class: 'li-1',
+                value: 'I am li-1'
+            }
+        }
+    ]
+};
 
 /** 用來建立 virtual node 結構的 object **/
 

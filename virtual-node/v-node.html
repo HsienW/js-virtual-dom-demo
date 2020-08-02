@@ -21,6 +21,7 @@
 <div class="list"></div>
 <script src="./v-node.js"></script>
 <script src="../diff/diff.js"></script>
+<script src="../patch/patch.js"></script>
 <script src="../util/util.js"></script>
 <script>
 
@@ -70,6 +71,7 @@
     // document.body.appendChild(dom);
 
     let patches = diff(oldNodeElementDemo, newNodeElementDemo);
+    renderPatchToDom(patches);
     console.log(patches);
 
 

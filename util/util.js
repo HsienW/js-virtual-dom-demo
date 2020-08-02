@@ -16,13 +16,19 @@ function createDOM(node) {
 /** 在真實 dom 父節點之下插入一個新的節點 **/
 
 function insertDOM(newNode) {
+    // 取出新節點的父節點
     let parent = newNode.parentNode.element;
+    // 再從父節點取出全部的子節點
     let children = parent.children;
-
+    // 取出新節點的真實 dom 引用
     let element = newNode.element;
-    let after = children[newNode.index];
 
-    after ? parent.insertBefore(element, after) : parent.appendChild(element);
+    // 尋找要插入點的 index 位置
+    let searchIndex = children[newNode.index];
+
+    // 若有找到 searchIndex 就把新節點插入在 index 之前一個
+    // 若沒找到 (當前沒有其他子節點) 就插入到父節點之下
+    searchIndex ? parent.insertBefore(element, searchIndex) : parent.appendChild(element);
 }
 
 /** 向一個 dom 增加屬性 **/
@@ -31,7 +37,7 @@ function customSetAttribute(element, prop, value) {
     // 檢查是否 prop 帶有事件 handler
     // 若找到 on 開頭的 prop 屬性, indexOf 會回傳 index (這裡通常是0 因為都是第一個) isEventHandler = true
     // 若沒有 會是回傳 -1, isEventHandler = false
-    let isEventHandler = prop.indexOf('on') === 0;
+    let isEventHandler = Object.keys(prop).indexOf('on') === 0 ;
 
     if (isEventHandler) {
         // 對 element 掛上對應的 event
