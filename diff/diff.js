@@ -18,18 +18,16 @@ const patchesType = {
 /** 檢查子節點差異 **/
 
 function diffChildren(oldChildren, newChildren, patches) {
-
     // 用來檢查舊子節點沒有, 而新子節點有的 index
     let checkIndex = 0;
 
     // "舊子節點" 當檢查標準開始比對
     if (oldChildren && oldChildren.length) {
         oldChildren.forEach((child, index) => {
-            // 每次都增加 checkIndex
-            checkIndex++;
-
             // 把對應的當下 index 中的新子節點丟進 diff 做比對
             diff(child, newChildren[index] || null, patches);
+            // 每次都增加 checkIndex
+            checkIndex++;
         });
     }
 
@@ -39,17 +37,15 @@ function diffChildren(oldChildren, newChildren, patches) {
 
         // while 迴圈會在 checkIndex, 追上 newChildren.length 之前不斷丟給 diff 剩餘沒比對的
         while (checkIndex < newChildren.length) {
+            diff(oldChildren[checkIndex], newChildren[checkIndex], patches);
             checkIndex++;
-            diff(null, newChildren[checkIndex], patches);
         }
     }
 }
 
-
 /** 檢查節點上的屬性差異 **/
 
 function diffAttribute(oldAttributes, newAttributes) {
-
     // logAttributes object 用來記錄差異
     let logAttributes = {};
 

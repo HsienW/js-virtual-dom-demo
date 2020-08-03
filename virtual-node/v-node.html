@@ -4,15 +4,15 @@
     <meta charset="utf-8">
     <title>Virtual Node</title>
     <style>
-        .li-1 {
+        .one-style {
             background: blue;
         }
 
-        .li-2 {
+        .two-style {
             background: yellow;
         }
 
-        .li-3 {
+        .three-style {
             background: red;
         }
     </style>
@@ -36,7 +36,7 @@
                 type: 'li',
                 props: {
                     key: 'li-1',
-                    class: 'li-1',
+                    class: 'one-style',
                     value: 'I am li-1',
                     onClick:  () => {
                         console.log(this.value);
@@ -57,8 +57,22 @@
                 type: 'li',
                 props: {
                     key: 'li-1',
-                    class: 'li-2',
-                    value: 'I am new value'
+                    class: 'two-style',
+                    value: 'I am new value li-2',
+                    onClick:  () => {
+                        console.log(this.value);
+                    }
+                }
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'three-style',
+                    value: 'I am new value li-3',
+                    onClick:  () => {
+                        console.log(this.value);
+                    }
                 }
             }
         ]
@@ -68,9 +82,11 @@
     let initDom = virtualNodeToDOM(firstVNode, null);
     document.body.appendChild(initDom);
 
-    let secondVNode = createVirtualRoot(newNodeData);
-    let patches = diff(firstVNode, secondVNode);
-    renderPatchToDom(patches);
+   setTimeout(() => {
+       let secondVNode = createVirtualRoot(newNodeData);
+       let patches = diff(firstVNode, secondVNode);
+       renderPatchToDom(patches);
+   }, 2000)
 
 </script>
 </body>

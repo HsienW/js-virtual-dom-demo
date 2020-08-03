@@ -34,7 +34,6 @@ function insertDOM(newNode) {
 /** 向一個 dom 增加屬性 **/
 
 function customSetAttribute(element = {}, prop = {}, value = null) {
-
     // 檢查是否 prop 帶有事件 handler
     // 若找到 on 開頭的 prop 屬性, indexOf 會回傳 index (這裡通常是0 因為都是第一個) isEventHandler = true
     // 若沒有 會是回傳 -1, isEventHandler = false

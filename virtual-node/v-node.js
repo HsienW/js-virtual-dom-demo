@@ -21,7 +21,6 @@
 /** 用來建立 virtual node 結構的 object **/
 
 function createVirtualNode(type, props = {}, children = []) {
-
     // 保存每個 node 的 key
     let key = props.key;
 
@@ -87,7 +86,6 @@ function createVirtualRoot(data) {
 // 要掛上子節點前需要先生成父節點 (使用先序)
 
 function virtualNodeToDOM(rootNode, parentDOM) {
-
     // 對傳入的 root node 取出屬性
     let {type, props, children} = rootNode;
 
