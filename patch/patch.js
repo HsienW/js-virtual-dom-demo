@@ -60,8 +60,11 @@ const doRender = {
 
     // UPDATE = 節點 type 沒變, 只有屬性有變
     UPDATE: function (oldNode, newNode) {
-        // 只需對 newNode 刷新 diff 檢查到的屬性改變即可
-        customSetAttribute(newNode, newNode.props);
+        // 只需對 newNode 刷新成 diff 檢查到的屬性改變即可
+        // 從新節點的 props object 中取出每個查到的新屬性, 並且賦予 element
+        for (let key in newNode.props) {
+            customSetAttribute(newNode.element, key, newNode.props[key]);
+        }
     },
 
     // INSERT = 新增節點, 舊的完全沒有這個節點

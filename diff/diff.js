@@ -45,7 +45,6 @@ function diffChildren(oldChildren, newChildren, patches) {
     }
 }
 
-
 /** 檢查節點上的屬性差異 **/
 
 function diffAttribute(oldAttributes, newAttributes) {
