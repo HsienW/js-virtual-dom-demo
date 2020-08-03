@@ -5,14 +5,19 @@
     <title>Virtual Node</title>
     <style>
         .one-style {
+            width: 100vw;
+            height: 2vh;
             background: blue;
         }
-
         .two-style {
+            width: 100vw;
+            height: 2vh;
             background: yellow;
         }
 
         .three-style {
+            width: 100vw;
+            height: 2vh;
             background: red;
         }
     </style>
@@ -52,7 +57,7 @@
         },
         children: [  // Node 的子節點
             {
-                type: 'li',
+                type: 'div',
                 props: {
                     key: 'li-1',
                     class: 'two-style',
@@ -60,7 +65,7 @@
                 }
             },
             {
-                type: 'li',
+                type: 'div',
                 props: {
                     key: 'li-2',
                     class: 'three-style',
