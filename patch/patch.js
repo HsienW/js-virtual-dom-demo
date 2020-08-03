@@ -51,7 +51,9 @@ const doRender = {
         let newElement = newNode.element;
 
         // 在要更換的新節點上刷新屬性
-        customSetAttribute(newNode, newNode.props);
+        for (let key in newNode.props) {
+            customSetAttribute(newNode.element, key, newNode.props[key]);
+        }
         // 在舊節點的父節點上插入新的 element
         parent.insertBefore(newElement, oldElement);
         // 接著從舊節點的父節點上移除舊的 element
