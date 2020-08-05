@@ -59,11 +59,12 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
     // 做 backup 原因是要避免影響之後掛回父節點的 newChildren
     let backupNewChildren = newChildren.slice();
 
-    // keyMap 用來存找到帶有 key 的子節點
+    // keyMap 用來存放帶有 key 的子節點
     let keyMap = {};
 
+    // 用 newChildren 來尋找新增加的子節點
     backupNewChildren.forEach((child, index) => {
-        // 取出每個 child 的 key, 沒有 key 的會拿到 undefined
+        // 取出當前這個 child 的 key, 沒有 key 的會拿到 undefined
         let {key} = child;
 
         // 若這個 child 帶有 key, 就進入比較環節
@@ -73,14 +74,51 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             if (!keyMap[key]) {
                 // 對 keyMap 添加新的 virtualNode
                 keyMap[key] = {
-                    virtualNode: child,
-                    index
+                    virtualNode: child, // {}
+                    index //1
                 }
             }
             // 若當下的 keyMap 已經有這個 key, 就印出提示
             else {
-                console.warn(`${key}必須要是唯一的`, child)
+                throw new Error(`${child} 的 ${key} 必須要是唯一的`);
             }
+        }
+    })
+
+    // typeMap 用來存放帶有 type 的子節點
+    let typeMap = {};
+
+    // 用 oldChildren 來尋找新節點中 type 相同, 但 key 不同的子節點, 並且留住舊的子節點
+    oldChildren.forEach((child) => {
+        // 取出當前這個 child 的 type & key
+        let {type, key} = child; // li 123
+
+        // 先找 type & key 都相同的
+        // 再從 keyMap 取出符合當前 child key 的 virtualNode & index
+        // 這裡有找到表示 key 已是符合的
+        let {virtualNode, index} = (keyMap[key] || {});
+
+        // 若取出的 virtualNode 有值, 且 type 相等就
+        // 進入比較環節, 這裡有找到表示 type & key
+        if (virtualNode && virtualNode.type === type) {
+            // 都已比較過, type & key 都為相同, 表示可以覆用舊的
+            // 對 backupNewChildren 該 index 的節點清空
+            backupNewChildren[index] = null;
+            // 對 keyMap 該 key 的紀錄也清空
+            delete keyMap[key];
+            // 最後把當前的 child & 暫存的 virtualNode 丟入 diff
+            // 做遞迴的檢查它的屬性 & 子節點是否有變
+            diff(child, virtualNode, patches);
+        }
+
+        // 其餘不相等的, 就用 typeMap 存起來, 跟剩下的新節點做比較
+        else {
+            // 若是 typeMap 中不存在這個 type, 就把它清空 ex: li
+            if (!typeMap[type]) {
+                typeMap[type] = [];
+            }
+            // 若是 typeMap 中已經有這個 type 了, 就先全部收集起來 ex: li
+            typeMap[type].push(child);
         }
     })
 }
