@@ -64,7 +64,7 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
 
     // 用 newChildren 來尋找新增加的子節點
     backupNewChildren.forEach((child, index) => {
-        // 取出當前這個 child 的 key, 沒有 key 的會拿到 undefined
+        // 取出當前這個 child 的 key, 沒有 key 的話會拿到 undefined
         let {key} = child;
 
         // 若這個 child 帶有 key, 就進入比較環節
@@ -74,8 +74,8 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             if (!keyMap[key]) {
                 // 對 keyMap 添加新的 virtualNode
                 keyMap[key] = {
-                    virtualNode: child, // {}
-                    index //1
+                    virtualNode: child,
+                    index
                 }
             }
             // 若當下的 keyMap 已經有這個 key, 就印出提示
@@ -88,18 +88,18 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
     // typeMap 用來存放帶有 type 的子節點
     let typeMap = {};
 
-    // 用 oldChildren 來尋找新節點中 type 相同, 但 key 不同的子節點, 並且留住舊的子節點
+    // 用 oldChildren 來比對 backupNewChildren 的新節點
     oldChildren.forEach((child) => {
         // 取出當前這個 child 的 type & key
-        let {type, key} = child; // li 123
+        let {type, key} = child;
 
-        // 先找 type & key 都相同的
-        // 再從 keyMap 取出符合當前 child key 的 virtualNode & index
+        // Step1. 先找 type & key 都相同的
+        // 從 keyMap 取出符合當前 child key 的 virtualNode & index
         // 這裡有找到表示 key 已是符合的
         let {virtualNode, index} = (keyMap[key] || {});
 
         // 若取出的 virtualNode 有值, 且 type 相等就
-        // 進入比較環節, 這裡有找到表示 type & key
+        // 進入比較 key 環節, 這裡有找到表示 type & key
         if (virtualNode && virtualNode.type === type) {
             // 都已比較過, type & key 都為相同, 表示可以覆用舊的
             // 對 backupNewChildren 該 index 的節點清空
@@ -107,11 +107,10 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             // 對 keyMap 該 key 的紀錄也清空
             delete keyMap[key];
             // 最後把當前的 child & 暫存的 virtualNode 丟入 diff
-            // 做遞迴的檢查它的屬性 & 子節點是否有變
+            // 用遞迴的方式檢查它的屬性 & 子節點是否有變
             diff(child, virtualNode, patches);
         }
-
-        // 其餘不相等的, 就用 typeMap 存起來, 跟剩下的新節點做比較
+        // Step2. 表示其餘 oldChildren 的 type 相同, 但 key 不同的子節點, 用 typeMap 存起來跟剩下的新節點做比較
         else {
             // 若是 typeMap 中不存在這個 type, 就把它清空 ex: li
             if (!typeMap[type]) {
@@ -120,6 +119,39 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             // 若是 typeMap 中已經有這個 type 了, 就先全部收集起來 ex: li
             typeMap[type].push(child);
         }
+    })
+
+    // Step3. backupNewChildren 剩下的節點一一與 typeMap 做比較
+    for (let i = 0; i < backupNewChildren.length; i++) {
+
+        // 取出當前的節點
+        let currentNode = backupNewChildren[i];
+
+        // 若當前節點不存在, 表示在前面時已經被比較過, 所以被清空了
+        if (!currentNode) {
+            continue // 終止這次
+        }
+
+        // 若當前節點的 type 還有存在於 typeMap 中, 表示
+        if (typeMap[currentNode.type] && typeMap[currentNode.type].length) {
+
+            // 比對到這個步驟時, typeMap 中同樣的 currentNode.type 的最多就會是2個節點,
+            let oldNode = typeMap[currentNode.type].shift();
+            diff(oldNode, currentNode, patches);
+        }
+
+        else {
+            diff(null, currentNode, patches);
+        }
+    }
+
+    // 剩下沒用到的舊節點, 就把它移除
+    Object.keys(typeMap).forEach(type => {
+        let oldNodes = typeMap[type];
+
+        oldNodes.forEach(node => {
+            diff(node, null, patches);
+        })
     })
 }
 
