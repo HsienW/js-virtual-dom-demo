@@ -45,6 +45,14 @@
                     class: 'one-style',
                     value: 'I am li-1',
                 }
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'two-style',
+                    value: 'I am li-2',
+                }
             }
         ]
     };
@@ -57,25 +65,33 @@
         },
         children: [  // Node 的子節點
             {
-                type: 'div',
+                type: 'li',
                 props: {
                     key: 'li-1',
-                    class: 'two-style',
-                    value: 'I am new value li-2',
+                    class: 'one-style',
+                    value: 'I am li-1',
                 }
             },
             {
                 type: 'div',
                 props: {
-                    key: 'li-2',
+                    key: 'div-1',
                     class: 'three-style',
-                    value: 'I am new value li-3',
+                    value: 'I am div',
+                }
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'two-style',
+                    value: 'I am li-2',
                 }
             }
         ]
     };
 
-    const firstVNode = createVirtualRoot(oldNodeData);
+    let firstVNode = createVirtualRoot(oldNodeData);
     let initDom = virtualNodeToDOM(firstVNode, null);
     document.body.appendChild(initDom);
 
