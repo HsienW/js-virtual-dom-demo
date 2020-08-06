@@ -55,9 +55,15 @@ function diffChildrenForIndex(oldChildren, newChildren, patches) {
 /** 透過 key & type 檢查子節點差異 **/
 
 function diffChildrenForKey(oldChildren, newChildren, patches) {
+
+    if (newChildren === undefined || oldChildren === undefined) {
+        return;
+    }
+
     // 對 newChildren 建立一個 backup 用來找 key 相同的子節點
     // 做 backup 原因是要避免影響之後掛回父節點的 newChildren
-    let backupNewChildren = newChildren.slice();
+
+    let backupNewChildren = [...newChildren];
 
     // keyMap 用來存放帶有 key 的子節點
     let keyMap = {};
@@ -138,9 +144,7 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             // 比對到這個步驟時, typeMap 中同樣的 currentNode.type 的最多就會是2個節點,
             let oldNode = typeMap[currentNode.type].shift();
             diff(oldNode, currentNode, patches);
-        }
-
-        else {
+        } else {
             diff(null, currentNode, patches);
         }
     }
@@ -197,7 +201,7 @@ function diff(oldNode, newNode, patches = []) {
         patches.push({type: patchesType.INSERT, newNode});
 
         // 插入的子節點, 一樣執行 diff 檢查, 因為是全新節點, 所以 oldChildren 給 []
-        diffChildrenForIndex([], newNode.children, patches);
+        diffChildrenForKey([], newNode.children, patches);
     }
 
     // 若這次新舊節點都有, 但 type 不同, 表示節點 tag 改變, 需要整個更換
@@ -206,7 +210,7 @@ function diff(oldNode, newNode, patches = []) {
         patches.push({type: patchesType.REPLACE, oldNode, newNode});
 
         // tag 改變表示子節點全部都需要一同更換, 一樣執行 diff 檢查, 所以 oldChildren 給 []
-        diffChildrenForIndex([], newNode.children, patches);
+        diffChildrenForKey([], newNode.children, patches);
     }
 
     // 新舊節點都有, 且 type 相同, 表示只是它的屬性值有改變
@@ -223,7 +227,7 @@ function diff(oldNode, newNode, patches = []) {
         newNode.element = oldNode.element;
 
         // 子節點一樣執行 diff 檢查
-        diffChildrenForIndex(oldNode.children, newNode.children, patches);
+        diffChildrenForKey(oldNode.children, newNode.children, patches);
     }
 
     // 回傳整個收集完的 patches
