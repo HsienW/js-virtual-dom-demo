@@ -155,7 +155,7 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
         let oldNodes = typeMap[type];
 
         // 給與 diff 新節點為空, 表示可以移除
-        oldNodes.forEach(node => {
+        oldNodes.forEach((node) => {
             diff(node, null, patches);
         })
     })
