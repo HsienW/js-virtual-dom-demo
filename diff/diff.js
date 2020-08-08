@@ -151,8 +151,10 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
 
     // 剩下沒用到的舊節點, 就把它移除
     Object.keys(typeMap).forEach(type => {
+        // 從 typeMap 中取出剩下的節點
         let oldNodes = typeMap[type];
 
+        // 給與 diff 新節點為空, 表示可以移除
         oldNodes.forEach(node => {
             diff(node, null, patches);
         })
