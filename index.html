@@ -2,84 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Virtual Dom Simulation</title>
+    <title>Virtual Node</title>
+    <style>
+        .one-style {
+            width: 100vw;
+            height: 2vh;
+            background: blue;
+        }
+        .two-style {
+            width: 100vw;
+            height: 2vh;
+            background: yellow;
+        }
+
+        .three-style {
+            width: 100vw;
+            height: 2vh;
+            background: red;
+        }
+    </style>
 </head>
 <body>
-<script type="module" src="list-diff.js"></script>
-<script type="module">
-    import {CustomElement} from './element.js';
-    import {diff} from './diff.js';
-    import {patch} from './patch.js';
-    // import {customSetAttribute} from './util.js';
+<div class="list"></div>
 
-    // 一個 Virtual Dom 下的 Node 展開後, 類似下面這個 element object
-    // let element = {
-    //     tagName: 'ul',  // Node 標籤名
-    //     props: {  // DOM 的屬性，用一個對象存儲鍵值對
-    //         id: 'list'
-    //     },
-    //     children: [  // Node 的子節點
-    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 1"]},
-    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 2"]},
-    //         {tagName: 'li', props: {class: 'item'}, children: ["Item 3"]},
-    //     ]
-    // }
+<script src="./virtual-node/v-node.js"></script>
+<script src="./diff/diff.js"></script>
+<script src="./patch/patch.js"></script>
+<script src="./util/util.js"></script>
+<script>
 
-    let count = 0;
+    let oldNodeData = {
+        type: 'ul',  // Node 標籤名
+        props: {  // DOM 的屬性, 用一個 object 其他屬性
+            key: 'key-1',
+            class: 'list',
+        },
+        children: [  // Node 的子節點
+            {
+                type: 'li',
+                props: {
+                    key: 'li-1',
+                    class: 'one-style',
+                    value: 'I am li-1',
+                }
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-2',
+                    class: 'two-style',
+                    value: 'I am li-2',
+                }
+            }
+        ]
+    };
 
-    const ulNode = new CustomElement('ul', {id: 'list'}, [
-        new CustomElement('li', {class: 'item'}, ['Item 1']),
-        new CustomElement('li', {class: 'item'}, ['Item 2']),
-        new CustomElement('li', {class: 'item'}, ['Item 3'])
-    ]);
+    let newNodeData = {
+        type: 'ul',  // Node 標籤名
+        props: {  // DOM 的屬性, 用一個 object 其他屬性
+            key: 'key-1',
+            class: 'list',
+        },
+        children: [  // Node 的子節點
+            {
+                type: 'li',
+                props: {
+                    key: 'li-1',
+                    class: 'one-style',
+                    value: 'I am li-1',
+                }
+            },
+            {
+                type: 'div',
+                props: {
+                    key: 'div-1',
+                    class: 'two-style',
+                    value: 'value change..........',
+                }
+            },
+            {
+                type: 'li',
+                props: {
+                    key: 'li-3',
+                    class: 'three-style',
+                    value: 'I am li-3',
+                }
+            }
+        ]
+    };
 
-    console.log('viewviewviewviewviewviewviewviewviewview');
-    console.log(ulNode);
+    let firstVNode = createVirtualRoot(oldNodeData);
+    let initDom = virtualNodeToDOM(firstVNode, null);
+    document.body.appendChild(initDom);
 
-
-    const isChangeUlNode = new CustomElement('ul', {id: 'list'}, [
-        new CustomElement('li', {class: 'item'}, ['Item 1-1', 'Item 1-2', 'Item 1-3']),
-        new CustomElement('li', {class: 'item-test'}, ['Item 2-1', 'Item 2-2', 'Item 2-3']),
-        new CustomElement('li', {class: 'item'}, ['Item 3']),
-        new CustomElement('li', {class: 'item-test'}, ['Item 4'])
-    ]);
-
-    console.log(ulNode);
-    //
-    const ulRootDom = ulNode.render();
-    document.body.appendChild(ulRootDom);
-
-
-    setTimeout(function () {
-        let patches = diff(ulNode, isChangeUlNode)
-        patch(ulRootDom, patches)
-    }, 3000)
-
-
-    //  const createElement = function(type, props, children) {
-    //      // 直接 return 一個 object, 用來產生 Virtual Dom 下的 node 結構
-    //      // 把 children 掛入 props, 以便後續能用 this.props.children 拿取子 node
-    //      return {
-    //          type,
-    //          props: {
-    //              ...props,
-    //              ...children
-    //          }
-    //      }
-    // }
-    // const render = function (vDom, container) {
-    //      // 用來存放 vDom 的 object
-    //     let dom;
-    //
-    //     // 先檢查當前要 render 的 vDom 是 object or string
-    //     if(typeof vDom !== 'object') {
-    //         // 是 string 的話, 創建 TextNode
-    //         dom = document.createTextNode(vDom)
-    //     } else {
-    //         // 是 object 的話, 創建 Element
-    //         dom = document.createElement(vDom.type);
-    //     }
-    // }
+   setTimeout(() => {
+       let secondVNode = createVirtualRoot(newNodeData);
+       let patches = diff(firstVNode, secondVNode);
+       renderPatchToDom(patches);
+   }, 2000)
 
 </script>
 </body>
