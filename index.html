@@ -28,6 +28,7 @@
 <script src="./virtual-node/v-node.js"></script>
 <script src="./diff/diff.js"></script>
 <script src="./patch/patch.js"></script>
+<script src="./fiber/fiber-v-node.js"></script>
 <script src="./util/util.js"></script>
 <script>
 
@@ -91,15 +92,15 @@
         ]
     };
 
-    let firstVNode = createVirtualRoot(oldNodeData);
-    let initDom = virtualNodeToDOM(firstVNode, null);
-    document.body.appendChild(initDom);
-
-   setTimeout(() => {
-       let secondVNode = createVirtualRoot(newNodeData);
-       let patches = diff(firstVNode, secondVNode);
-       renderPatchToDom(patches);
-   }, 2000)
+    let firstVNode = createFiber(oldNodeData.type, oldNodeData.props, oldNodeData.children);
+    // let initDom = virtualNodeToDOM(firstVNode, null);
+    // document.body.appendChild(initDom);
+   //
+   // setTimeout(() => {
+   //     let secondVNode = createVirtualRoot(newNodeData);
+   //     let patches = diff(firstVNode, secondVNode);
+   //     renderPatchToDom(patches);
+   // }, 2000)
 
 </script>
 </body>
