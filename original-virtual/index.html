@@ -25,11 +25,10 @@
 <body>
 <div class="list"></div>
 
-<script src="./virtual-node/v-node.js"></script>
-<script src="./diff/diff.js"></script>
-<script src="./patch/patch.js"></script>
-<script src="./fiber/fiber-v-node.js"></script>
-<script src="./util/util.js"></script>
+<script src="./v-node.js"></script>
+<script src="./diff.js"></script>
+<script src="./patch.js"></script>
+<script src="../util/util.js"></script>
 <script>
 
     let oldNodeData = {
@@ -92,15 +91,15 @@
         ]
     };
 
-    let firstVNode = createFiber(oldNodeData.type, oldNodeData.props, oldNodeData.children);
-    // let initDom = virtualNodeToDOM(firstVNode, null);
-    // document.body.appendChild(initDom);
-   //
-   // setTimeout(() => {
-   //     let secondVNode = createVirtualRoot(newNodeData);
-   //     let patches = diff(firstVNode, secondVNode);
-   //     renderPatchToDom(patches);
-   // }, 2000)
+    let firstVNode = createVirtualNode(oldNodeData.type, oldNodeData.props, oldNodeData.children);
+    let initDom = virtualNodeToDOM(firstVNode, null);
+    document.body.appendChild(initDom);
+
+   setTimeout(() => {
+       let secondVNode = createVirtualRoot(newNodeData);
+       let patches = diff(firstVNode, secondVNode);
+       renderPatchToDom(patches);
+   }, 2000)
 
 </script>
 </body>
