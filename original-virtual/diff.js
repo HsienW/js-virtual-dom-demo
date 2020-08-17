@@ -138,10 +138,11 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             continue // 終止這次
         }
 
-        // 若當前節點的 type 還有存在於 typeMap 中, 表示
+        // 若當前節點的 type 還有存在於 typeMap 中, 表示 currentNode 為新增的節點
         if (typeMap[currentNode.type] && typeMap[currentNode.type].length) {
 
             // 比對到這個步驟時, typeMap 中同樣的 currentNode.type 的最多就會是2個節點,
+            // 透過第一個節點的 type 取出 typeMap 中的舊節點
             let oldNode = typeMap[currentNode.type].shift();
             diff(oldNode, currentNode, patches);
         } else {
@@ -149,7 +150,7 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
         }
     }
 
-    // 剩下沒用到的舊節點, 就把它移除
+    // Step4. 剩下沒用到的舊節點, 就把它移除
     Object.keys(typeMap).forEach(type => {
         // 從 typeMap 中取出剩下的節點
         let oldNodes = typeMap[type];
