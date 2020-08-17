@@ -99,9 +99,9 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             backupNewChildren[index] = null;
             // 對 keyMap 該 key 的紀錄也清空
             delete keyMap[key];
-            // 最後把當前的 child & 暫存的 virtualNode 丟入 diff
-            // 用遞迴的方式檢查它的屬性 & 子節點是否有變
-            diff(child, virtualNode, patches);
+            // 移除先前的遞迴
+            // 讓 virtualNode 保存 oldFiberNode (上一個節點) 的指向, 以便後續使用
+            virtualNode.oldFiberNode = child;
         }
         // Step2. 表示其餘 oldChildren 的 type 相同, 但 key 不同的子節點, 用 typeMap 存起來跟剩下的新節點做比較
         else {
@@ -125,25 +125,32 @@ function diffChildrenForKey(oldChildren, newChildren, patches) {
             continue // 終止這次
         }
 
-        // 若當前節點的 type 還有存在於 typeMap 中, 表示
+        // 若當前節點的 type 還有存在於 typeMap 中, 表示 currentNode 為新增的節點
         if (typeMap[currentNode.type] && typeMap[currentNode.type].length) {
 
             // 比對到這個步驟時, typeMap 中同樣的 currentNode.type 的最多就會是2個節點,
+            // 透過第一個節點的 type 取出 typeMap 中的舊節點
             let oldNode = typeMap[currentNode.type].shift();
-            diff(oldNode, currentNode, patches);
-        } else {
-            diff(null, currentNode, patches);
+
+            // 讓 currentNode 保存 oldFiberNode (上一個節點) 的指向, 以便後續使用
+            currentNode.oldFiberNode = oldNode;
+        }
+
+        //  若當前節點的 type 不存在於 typeMap 中, 表示為要清空的的舊節點
+        else {
+            // 清空 currentNode 保存 oldFiberNode 指向
+            currentNode.oldFiberNode = null;
         }
     }
 
-    // 剩下沒用到的舊節點, 就把它移除
+    // Step4. 剩下沒用到的舊節點, 就把它移除
     Object.keys(typeMap).forEach(type => {
         // 從 typeMap 中取出剩下的節點
         let oldNodes = typeMap[type];
 
-        // 給與 diff 新節點為空, 表示可以移除
-        oldNodes.forEach((node) => {
-            diff(node, null, patches);
+        // 透過迴圈給 patches 添加要移除的標記
+        oldNodes.forEach((oldNode) => {
+            patches.push({type: patchesType.REMOVE, oldNode: oldNode})
         })
     })
 }
@@ -224,12 +231,12 @@ function fiberDiff(oldNode, newNode, patches) {
 
         // 用新節點的屬性, 去更換舊節點的屬性
         if (Object.keys(logAttributes).length > 0) {
-            patches.push({type: patchesType.UPDATE, oldNode, newNode, logAttributes})
+            patches.push({type: patchesType.UPDATE, oldNode, newNode, logAttributes});
         }
 
         // 若舊節點與新節點 index 不符, 表示節點需要移動位子
         if (oldNode.index !== newNode.index) {
-            patches.push({type: patchesType.MOVE, oldNode, newNode})
+            patches.push({type: patchesType.MOVE, oldNode, newNode});
         }
         // 剩餘相同的, 就覆用舊節點即可
         newNode.element = oldNode.element;
