@@ -12,7 +12,7 @@
  基於這 4個屬性, 可以把遞迴結構修改成循環結構, 可以中斷又復原
  **/
 
-function createFiber(type, props = {}, children = []) {
+function createFiberNode(type, props = {}, children = []) {
     // 保存每個 node 的 key
     let key = props.key;
 
@@ -67,4 +67,66 @@ function createFiber(type, props = {}, children = []) {
     })
 
     return virtualNode;
+}
+
+function createFiberVirtualRoot(data) {
+    let childrenData = data.children.map(item => {
+        return createFiberNode(
+            item.type,
+            item.props,
+            [item]
+        )
+    });
+
+    let rootData = createFiberNode(
+        data.type,
+        data.props,
+        childrenData
+    );
+
+    return rootData;
+}
+
+/** 用來把之前產出的 fiber virtual node object 轉換為真實的 dom 並掛上 **/
+
+// 這邊會使用遞迴的方式執行轉換, 因為 node 結構為 tree, 適合使用
+// 要掛上子節點前需要先生成父節點 (使用先序)
+
+function fiberVirtualNodeToDOM(rootNode, parentDOM) {
+    // 對傳入的 root node 取出屬性
+    let {type, props, children} = rootNode;
+
+    // 當前的 virtual node render 成對應的 dom (後面要掛入的 root dom)
+    let dom;
+
+    // 若 rootNode type 為 string, 直接對 dom 掛上當前的 text node
+    if (isTextNode(type)) {
+        dom = document.createTextNode(rootNode.props.nodeValue);
+    }
+    // 若 rootNode type 為其他, 就先處理 rootNode 的每個 props, 在掛上 element
+    else {
+        dom = document.createElement(type);
+
+        // 透過迴圈對 element 掛上對應的屬性
+        for (let key in props) {
+            customSetAttribute(dom, key, props[key]);
+        }
+    }
+
+    // 使用遞迴方式處理 rootNode 的 children, 一併掛上 dom
+    if (Array.isArray(children)) {
+        children.forEach((child) => {
+            fiberVirtualNodeToDOM(child, dom);
+        });
+    }
+
+    // 若這次處理有 parentDOM 就表示該次的 dom 需要掛入到父層節點之下
+    if (parentDOM) {
+        parentDOM.appendChild(dom);
+    }
+
+    // 最後對 rootNode 的 element 加上, 對於這次完整產出的 dom 的引用
+    rootNode.element = dom;
+
+    return dom;
 }
