@@ -12,22 +12,6 @@
  基於這 4個屬性, 可以把遞迴結構修改成循環結構, 可以中斷又復原
  **/
 
-
-// 設定 FTP 是 30, 就是一秒更新30 幀
- const frameLength = 1000 / 30;
-
-// 保存每次切片的執行時間(deadline), 每次只要執行新的切片會更新成 getCurrentTime() + frameLength
-let frameDeadline;
-
-// 拿取當前時間
-function getCurrentTime() {
-    return new Date();
-}
-// 用來判定 fiber 在什麼時候被暫停
-function shouldYield() {
-    return getCurrentTime() > frameDeadline;
-}
-
 function createFiberNode(type, props = {}, children = []) {
     // 保存每個 node 的 key
     let key = props.key;
