@@ -205,43 +205,92 @@ function fiberDiffSync(oldFiberNode, newFiberNode) {
     let patches = [];
 
     while (currentFiberNode) {
-        currentFiberNode = syncUnitFiber(currentFiberNode, patches);
+        currentFiberNode = doUnitFiber(currentFiberNode, patches);
     }
     return patches;
 }
 
-function syncUnitFiber(fiberNode, patches) {
+function doUnitFiber(fiberNode, patches) {
     let oldFiber = fiberNode.oldFiberNode;
     let oldChildren = oldFiber.children || [];
 
     // 一樣是比對當前新舊節點的差異
     fiberDiff(oldFiber, fiberNode, patches);
+
+    return null;
 }
 
-function fiberDiff(oldNode, newNode, patches) {
-    // 若當前不存在舊節點, 表示當下這個為全新的節點
-    if (!oldNode) {
-        // 把全新的節點跟它的子節點全部都插入
-        patches.push({type: patchesType.INSERT, newNode});
+function fiberDiff(oldFiber, newFiber, callBack) {
+    // 判定是否上一個 diff 還沒做完, 就又有新的 diff 進來
+    // 並把新舊 diff 做比對
+    if (currentDiffRoot && currentDiffRoot !== newFiber) {
+        // todo should add cancel function
     }
-    // 若當前有存在舊節點, 表示要替當下這個節點做新舊對比的屬性檢查
-    else {
-        // 檢查哪個屬性是有改變的, 並記錄到 logAttributes
-        let logAttributes = diffAttribute(oldNode.props, newNode.props);
 
-        // 用新節點的屬性, 去更換舊節點的屬性
-        if (Object.keys(logAttributes).length > 0) {
-            patches.push({type: patchesType.UPDATE, oldNode, newNode, logAttributes});
+    // 紀錄當前的正在執行的 diff
+    let currentDiffRoot = newFiber;
+
+    // 讓 newFiber 保存對 oldFiber 的指向
+    newFiber.oldFiber = oldFiber;
+
+    // pointer 是當前正在做 督 的節點
+    // workLoop 透過閉包依然可以拿到它, 所以下一次 diff 可以從上次暫停點繼續
+    let pointer = newFiber;
+
+    // 紀錄每個 diff 的差異
+    let patches = [];
+
+    // workLoop 用來解析每個切片要執行的 diff 任務
+    const workLoop = () => {
+        while (pointer) {
+            // shouldYield 會在每次 diff 檢查完一個節點後 call 它
+            // 用來檢查是否有要中斷當前執行的 diff
+            // 若 shouldYield 回傳 true 表示當前能做事的時間已經沒了, 需等待下一次
+            if (shouldYield()) {
+                // 若回傳 true 表示當前的 diff 還沒比對完, 下次從這個節點開始
+                return true;
+            }
+            // 若時間還夠的話, 就繼續比對下一個節點的 diff
+            else {
+                // 執行 doUnitFiber 刷新當前 diff 節點的鏈結 (下一個節點 or 兄弟節點)
+                // 並將 pointer 刷新為 null 表示當前 diff 比對完畢
+                pointer = doUnitFiber(pointer, patches);
+            }
         }
+        // 做完 diff 把收集到的 patches 傳給 callBack 使用
+        callBack(patches);
 
-        // 若舊節點與新節點 index 不符, 表示節點需要移動位子
-        if (oldNode.index !== newNode.index) {
-            patches.push({type: patchesType.MOVE, oldNode, newNode});
-        }
-        // 剩餘相同的, 就覆用舊節點即可
-        newNode.element = oldNode.element;
-
-        // 子節點一樣執行 diff 檢查
-        diffChildrenForKey(oldNode.children, newNode.children, patches);
+        // 刷新 currentDiffRoot 為 null 表示當前這段 fiber Unit 做完了
+        currentDiffRoot = null;
+        return false;
     }
+    // scheduleWork(workLoop);
 }
+
+// function fiberDiff(oldNode, newNode, patches) {
+//     // 若當前不存在舊節點, 表示當下這個為全新的節點
+//     if (!oldNode) {
+//         // 把全新的節點跟它的子節點全部都插入
+//         patches.push({type: patchesType.INSERT, newNode});
+//     }
+//     // 若當前有存在舊節點, 表示要替當下這個節點做新舊對比的屬性檢查
+//     else {
+//         // 檢查哪個屬性是有改變的, 並記錄到 logAttributes
+//         let logAttributes = diffAttribute(oldNode.props, newNode.props);
+//
+//         // 用新節點的屬性, 去更換舊節點的屬性
+//         if (Object.keys(logAttributes).length > 0) {
+//             patches.push({type: patchesType.UPDATE, oldNode, newNode, logAttributes});
+//         }
+//
+//         // 若舊節點與新節點 index 不符, 表示節點需要移動位子
+//         if (oldNode.index !== newNode.index) {
+//             patches.push({type: patchesType.MOVE, oldNode, newNode});
+//         }
+//         // 剩餘相同的, 就覆用舊節點即可
+//         newNode.element = oldNode.element;
+//
+//         // 子節點一樣執行 diff 檢查
+//         diffChildrenForKey(oldNode.children, newNode.children, patches);
+//     }
+// }
