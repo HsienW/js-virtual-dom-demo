@@ -40,20 +40,26 @@ function onAnimationFrame() {
     frameDeadline = getCurrentTime() + frameLength;
 
     const hasMoreWork = scheduledCallback();
-    // 根據 scheduledCallback (workLoop) 的 return 判斷當前的 diff 是否做完了
+    // 根據 scheduledCallback (workLoop) return (由 shouldYield 回傳來的) 判斷當前的 diff 是否做完了
     // 如果還沒做完
     if (hasMoreWork) {
-        // 注册回调，方便下一帧更新frameDeadline，继续执行diff任务，直至整个任务执行完毕
-        // 由于workLoop通过闭包维持了对于cursor当前遍历的节点的引用，因此下次diff可以直接从上一次的暂停点继续执行
+        // 當 tag 被切到後台, requestAnimationFrame 會被暫停, 也將導致整個 diff 暫停, 先用計時器來處理
+        // 如果 onAnimationFrame 在 frameLength 兩倍的時間後, 仍然沒被執行, 就通過繼續 call requestAnimationFrame
+        let rafTimeoutID = setTimeout(() => {
+            onAnimationFrame()
+        }, frameLength * 2);
 
         // 對 requestAnimationFrame 綁上 callBack (onAnimationFrame)
         // 用於下一幀更新 frameDeadline, 以維持整個 diff 比較任務直到完成
-        //
+        // workLoop 通過閉包維持住, 可以拿到對 pointer 當前歷遍指針的引用, 因此可以直接從上次的暫停點繼續執行 diff 任務
         requestAnimationFrame(nextRAFTime => {
+            clearTimeout(rafTimeoutID)
             onAnimationFrame();
         });
+
+
     } else {
-        // 如果已经执行完毕，则清空
+        // 如果做完了這次就把 scheduledCallback 清空
         scheduledCallback = null;
     }
 }
