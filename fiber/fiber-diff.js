@@ -47,13 +47,13 @@ function fiberDiff(oldFiber, newFiber, callBack) {
         // todo should add cancel diff work function
     }
 
-    // 把 newFiber 佔存給 currentRootFiber 以便後續使用
+    // 把 newFiber 暫存給 currentRootFiber 以便後續使用
     let currentRootFiber = newFiber;
 
     // 對 newFiber 新增一個 oldFiber 的指向以便後續使用
     newFiber.oldFiberNode = oldFiber;
 
-    // 把 newFiber 佔存給當作指針的 pointer
+    // 把 newFiber 暫存給當作指針的 pointer
     let pointer = newFiber;
 
     // 收集這次 fiberDiff 比對到的差異
