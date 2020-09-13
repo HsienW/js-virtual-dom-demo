@@ -29,7 +29,7 @@ function scheduleWork(workLoop) {
  　1. 高優先級, 希望它快做完不然會影響整個 User 體驗, 例如: 動畫顯示 or User 操作行為該得到的回應
  　2. 低優先級, 當瀏覽器有空閒時間再處理的任務
  　剛好原生也幫我們提供了兩個　API　requestAnimationFrame & requestIdleCallback
-**/
+ **/
 function onAnimationFrame() {
     // 檢查當前 unit fiber diff 是否有正在執行的比較, 沒有得話就就跳出去
     if (!scheduledCallback) {
@@ -58,6 +58,33 @@ function onAnimationFrame() {
         });
 
 
+    } else {
+        // 如果做完了這次就把 scheduledCallback 清空
+        scheduledCallback = null;
+    }
+}
+
+// 使用 requestIdleCallback 讓瀏覽器在空閒時間, 執行低優先級的工作, 就不會影響重要事件
+// deadline 的 timeRemaining 用來控制每次佔用的時間長度
+function onIdleFrame(deadline) {
+
+    // 檢查上一個任務是否還沒做完, 若已經為空表示都做完了, 不需再跑
+    if (!scheduledCallback) {
+        return;
+    }
+
+    // 取出當前這幀剩下可用的空閒時間
+    let remain = deadline.timeRemaining();
+
+    // 透過 frameDeadline 來限制當前這個 unit 執行的 deadline
+    frameDeadline = getCurrentTime() + Math.min(remain, frameLength);
+
+    // 檢查上一個任務是否還沒做完
+    const hasMoreWork = scheduledCallback();
+
+    // 若 hasMoreWork 回傳 ture, 表示還有 diff 任務沒完成, 繼續 call onIdleFrame 執行任務
+    if (hasMoreWork) {
+        requestIdleCallback(onIdleFrame, {timeout: frameLength});
     } else {
         // 如果做完了這次就把 scheduledCallback 清空
         scheduledCallback = null;
