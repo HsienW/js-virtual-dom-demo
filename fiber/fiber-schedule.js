@@ -90,3 +90,7 @@ function onIdleFrame(deadline) {
         scheduledCallback = null;
     }
 }
+
+function cancelWork() {
+    scheduledCallback = null;
+}
