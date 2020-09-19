@@ -82,8 +82,6 @@ const doRender = {
 }
 
 function renderPatchToDom(patches) {
-    console.log('wwwwwwwwwwwwwwwwwwwwwwwwww');
-    console.log(patches);
     // 先處理需要重新建立 dom 的 patch 類型
     // 需要與真實 dom 做比較, 所以使用 beforeRenderReady, 先建立 dom
 

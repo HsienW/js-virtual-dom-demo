@@ -47,8 +47,6 @@ function fiberDiff(oldFiber, newFiber, callBack) {
     if (currentRootFiber && currentRootFiber !== newFiber) {
         cancelWork();
     }
-
-    // todo have fix this issue "fiberDiff" function return undefined
     // 把 newFiber 暫存給 currentRootFiber 以便後續使用
     currentRootFiber = newFiber;
 
@@ -87,6 +85,10 @@ function fiberDiff(oldFiber, newFiber, callBack) {
     scheduleWork(unitWorkLoop);
 }
 
+function fiberDffChildren(oldChildren, newChildren, patches) {
+    newChildren = newChildren.slice() // 复制一份children，避免影响父节点的children属性
+}
+
 let patches = [];
 function unitFiberDiffWork(fiberNode, patches) {
     // 取出 oldFiber
@@ -95,8 +97,10 @@ function unitFiberDiffWork(fiberNode, patches) {
     let oldChildren = oldFiber.children || [];
 
     // 一樣是比對當前新舊節點的差異
-    // fiberDiff(oldFiber, fiberNode, patches);
     fiberDiff(oldFiber, fiberNode, patches);
 
+    // 比對前新舊子節點的差異
+    // todo add check children fiber
+    fiberDffChildren();
     // return null;
 }
