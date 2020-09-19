@@ -21,7 +21,7 @@ function shouldYield() {
 function scheduleWork(workLoop) {
     // scheduledCallback 用來存當前的做的事情 Loop
     scheduledCallback = workLoop;
-    // window.requestIdleCallback(onIdleFrame);
+    window.requestIdleCallback(onIdleFrame);
 }
 
 /** 瀏覽器畫面的刷新跟 Fiber 的關係, 希望是每隔執行一部分 Diff 工作後, 就把控制權交回給瀏覽器做　Render
@@ -67,7 +67,6 @@ function onAnimationFrame() {
 // 使用 requestIdleCallback 讓瀏覽器在空閒時間, 執行低優先級的工作, 就不會影響重要事件
 // deadline 的 timeRemaining 用來控制每次佔用的時間長度
 function onIdleFrame(deadline) {
-
     // 檢查上一個任務是否還沒做完, 若已經為空表示都做完了, 不需再跑
     if (!scheduledCallback) {
         return;

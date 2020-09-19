@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="list"></div>
-
+<button onclick="test()">click</button>
 <script src="./fiber-v-node.js"></script>
 <script src="./fiber-diff.js"></script>
 <script src="./fiber-patch.js"></script>
@@ -92,15 +92,38 @@
         ]
     };
 
+   //  let firstVNode = createFiberNode(oldNodeData.type, oldNodeData.props, oldNodeData.children);
+   //  let initDom = fiberVirtualNodeToDOM(firstVNode, null);
+   //  document.body.appendChild(initDom);
+   //
+   // setTimeout(() => {
+   //     let secondVNode = createFiberVirtualRoot(newNodeData);
+   //     let patches = fiberDiff(firstVNode, secondVNode);
+   //     renderPatchToDom(patches);
+   // }, 2000)
+
     let firstVNode = createFiberNode(oldNodeData.type, oldNodeData.props, oldNodeData.children);
     let initDom = fiberVirtualNodeToDOM(firstVNode, null);
     document.body.appendChild(initDom);
 
-   setTimeout(() => {
-       let secondVNode = createFiberVirtualRoot(newNodeData);
-       let patches = fiberDiff(firstVNode, secondVNode);
-       renderPatchToDom(patches);
-   }, 2000)
+    // diff(root, root2, (patches) => {
+    //     console.log(patches)
+    //     doPatch(patches)
+    //     root = root2
+    // })
+
+    // let secondVNode = createFiberVirtualRoot(newNodeData);
+    // fiberDiff(firstVNode, secondVNode, (patches) => {
+    //     renderPatchToDom(patches);
+    // });
+
+    function test() {
+        let secondVNode = createFiberVirtualRoot(newNodeData);
+        fiberDiff(firstVNode, secondVNode, (patches) => {
+            renderPatchToDom(patches);
+        });
+    }
+
 
 </script>
 </body>
