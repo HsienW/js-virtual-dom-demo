@@ -42,6 +42,7 @@ function diffAttribute(oldAttributes, newAttributes) {
 }
 
 let currentRootFiber;
+
 function fiberDiff(oldFiber, newFiber, callBack) {
     // 判斷是否有前一個 diff 還沒結束, 但又遇到要開始新舊的 fiberDiff 比較
     if (currentRootFiber && currentRootFiber !== newFiber) {
@@ -86,10 +87,110 @@ function fiberDiff(oldFiber, newFiber, callBack) {
 }
 
 function fiberDffChildren(oldChildren, newChildren, patches) {
-    newChildren = newChildren.slice() // 复制一份children，避免影响父节点的children属性
+    // 對 newChildren 建立一個 backup 用來找 key 相同的子節點
+    // 做 backup 原因是要避免影響之後掛回父節點的 newChildren
+    let backupNewChildren = [...newChildren];
+
+    // keyMap 用來存放帶有 key 的子節點
+    let keyMap = {};
+
+    // 用 newChildren 來尋找新增加的子節點
+    backupNewChildren.forEach((child, index) => {
+        // 取出當前這個 child 的 key, 沒有 key 的話會拿到 undefined
+        let {key} = child;
+
+        // 若這個 child 帶有 key, 就進入比較環節
+        if (key !== undefined) {
+
+            // 若當下的 keyMap 中不存在這個 child 所帶有的 key, 表示是新的子節點
+            if (!keyMap[key]) {
+                // 對 keyMap 添加新的 virtualNode
+                keyMap[key] = {
+                    virtualNode: child,
+                    index
+                }
+            }
+            // 若當下的 keyMap 已經有這個 key, 就印出提示
+            else {
+                throw new Error(`${child} 的 ${key} 必須要是唯一的`);
+            }
+        }
+    })
+
+    // 在檢查 oldChildren 時, 都先比較 type & key, 若新節點中不存在 key 相同的話, 才會把舊節點存起來
+    // 這裡使用 Map 來存 type, 不能用簡單的 {};
+
+    // typeMap 用來存放帶有 type 的子節點
+    let typeMap = new Map();
+
+    // 用 oldChildren 來比對 backupNewChildren 的新節點
+    oldChildren.forEach((child) => {
+        // 取出當前這個 child 的 type & key
+        let {type, key} = child;
+
+        // Step1. 先找 type & key 都相同的
+        // 從 keyMap 取出符合當前 child key 的 virtualNode & index
+        // 這裡有找到表示 key 已是符合的
+        let {virtualNode, index} = (keyMap[key] || {});
+
+        // 若取出的 virtualNode 有值, 且 type 相等就
+        // 進入比較 key 環節, 這裡有找到表示 type & key
+        if (virtualNode && virtualNode.type === type) {
+            // 都已比較過, type & key 都為相同, 表示可以覆用舊的
+            // 對 backupNewChildren 該 index 的節點清空
+            backupNewChildren[index] = null;
+            // 對 keyMap 該 key 的紀錄也清空
+            delete keyMap[key];
+            // 對 virtualNode 保存 oldFiber 指針以便做紀錄
+            virtualNode.oldFiber = child;
+        }
+        // 表示其餘 oldChildren 的 type 相同, 但 key 不同的子節點, 用 typeMap 存起來跟剩下的新節點做比較
+        else {
+            // 若 typeMap 中不存在這個 type, 將他儲存起來, 表示為新增的
+            if (!typeMap.has(type)) {
+                typeMap.set(type, []);
+            }
+
+            // 若 typeMap 中已經有這個 type, 向它 push 這個的 child, 刷新它
+            typeMap.get(type).push(child);
+        }
+    })
+
+
+    // backupNewChildren 剩下的節點一一與 typeMap 做比較
+    for (let i = 0; i < backupNewChildren.length; i++) {
+
+        // 取出當前的節點
+        let currentNode = backupNewChildren[i];
+
+        // 若當前節點不存在, 表示在前面時已經被比較過, 所以被清空了
+        if (!currentNode) {
+            continue // 終止這次
+        }
+
+        // 從 typeMap 中拿取當前的 currentNode
+        let nodeArray = typeMap.has(currentNode.type) && typeMap.get(currentNode.type) || [];
+
+        // 若 nodeArray 拿的到值, 表示為新增的
+        if (nodeArray.length) {
+            // 取出自己 (typeMap 中的自己), 並且掛上去 oldFiber, 當成下次比對 diff 的舊節點
+            let oldNode = nodeArray.shift();
+            currentNode.oldFiber = oldNode;
+        }
+        // 若 nodeArray 拿不到值, 表示為比較過了, 直接清空
+        else {
+            currentNode.oldFiber = null;
+        }
+    }
+
+    // 剩下沒用到的舊節點, 就把它移除
+    typeMap.forEach((nodeArray, type) => {
+        nodeArray.forEach((old) => {
+            patches.push({type: patchesType.REMOVE, oldNode: old});
+        })
+    })
 }
 
-let patches = [];
 function unitFiberDiffWork(fiberNode, patches) {
     // 取出 oldFiber
     let oldFiber = fiberNode.oldFiberNode;
@@ -101,6 +202,6 @@ function unitFiberDiffWork(fiberNode, patches) {
 
     // 比對前新舊子節點的差異
     // todo add check children fiber
-    fiberDffChildren();
+    fiberDffChildren(oldChildren, fiberNode.children, patches);
     // return null;
 }
