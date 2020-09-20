@@ -194,14 +194,36 @@ function fiberDffChildren(oldChildren, newChildren, patches) {
 function unitFiberDiffWork(fiberNode, patches) {
     // 取出 oldFiber
     let oldFiber = fiberNode.oldFiberNode;
+
     // 取出 oldFiber 的子節點們, 若沒有就給空 Array
-    let oldChildren = oldFiber.children || [];
+    let oldChildren
+    if (oldFiber.children) {
+        oldChildren = oldFiber.children;
+    } else {
+        oldChildren = [];
+    }
 
     // 一樣是比對當前新舊節點的差異
     fiberDiff(oldFiber, fiberNode, patches);
-
-    // 比對前新舊子節點的差異
-    // todo add check children fiber
+    //
+    // // 比對前新舊子節點的差異
     fiberDffChildren(oldChildren, fiberNode.children, patches);
-    // return null;
+    //
+    if (fiberNode.children) {
+        return fiberNode.children;
+    }
+
+    while (fiberNode) {
+        // 如果沒有子節點, 但有兄弟節點時, 繼續檢查兄弟節點
+        if (fiberNode.sibling) {
+            return fiberNode.sibling;
+        }
+        // 當子節點 & 兄弟節點都檢查完之後, 回到父節點
+        fiberNode = fiberNode.parent;
+
+        if (!fiberNode) {
+            return null;
+        }
+    }
+    return null;
 }
