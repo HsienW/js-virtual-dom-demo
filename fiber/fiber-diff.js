@@ -204,7 +204,7 @@ function unitFiberDiffWork(fiberNode, patches) {
     }
 
     // 一樣是比對當前新舊節點的差異
-    fiberDiff(oldFiber, fiberNode, patches);
+    fiberDiffParent(oldFiber, fiberNode, patches);
     //
     // // 比對前新舊子節點的差異
     fiberDffChildren(oldChildren, fiberNode.children, patches);
@@ -226,4 +226,23 @@ function unitFiberDiffWork(fiberNode, patches) {
         }
     }
     return null;
+}
+
+function fiberDiffParent(oldNode, newNode, patches) {
+    if (!oldNode) {
+        // 若這次沒有舊節點, 表示該節點是全新的, 紀錄上沒有
+        // patches 紀錄要這個全新節點, 所以插入它 & 它的子節點
+        patches.push({type: patchesType.INSERT, newNode});
+    } else {
+
+        // 整個節點 type 不同表示需要全部更新, 用新節點更換舊節點
+        if (oldNode.type !== newNode.type) {
+            patches.push({type: patchesType.REPLACE, oldNode, newNode});
+        }
+
+        // 節點 type 相同, 表示需要檢查有哪些可以複用
+        if(oldNode.type === newNode.type)  {
+            // todo add this
+        }
+    }
 }
