@@ -86,7 +86,7 @@ function fiberDiff(oldFiber, newFiber, callBack) {
     scheduleWork(unitWorkLoop);
 }
 
-function fiberDffChildren(oldChildren, newChildren, patches) {
+function fiberDiffChildren(oldChildren, newChildren, patches) {
     // 對 newChildren 建立一個 backup 用來找 key 相同的子節點
     // 做 backup 原因是要避免影響之後掛回父節點的 newChildren
     let backupNewChildren = [...newChildren];
@@ -207,7 +207,7 @@ function unitFiberDiffWork(fiberNode, patches) {
     fiberDiffParent(oldFiber, fiberNode, patches);
     //
     // // 比對前新舊子節點的差異
-    fiberDffChildren(oldChildren, fiberNode.children, patches);
+    fiberDiffChildren(oldChildren, fiberNode.children, patches);
     //
     if (fiberNode.children) {
         return fiberNode.children;
@@ -228,6 +228,33 @@ function unitFiberDiffWork(fiberNode, patches) {
     return null;
 }
 
+function fiberDiffAttribute(oldAttributes, newAttributes) {
+    // logAttributes object 用來記錄差異
+    let logAttributes = {};
+
+    // 檢查舊屬性 & 新屬性的差異
+
+    // "舊屬性" 當檢查標準開始比對
+    for (let key in oldAttributes) {
+        // 若找到 key 是舊屬性沒有, 但新屬性有的(表示為新增的), 記錄到 logAttributes
+        if (oldAttributes[key] !== newAttributes[key]) {
+            // 可時候會是 null or undefined
+            logAttributes[key] = newAttributes[key];
+        }
+    }
+
+    // "新屬性" 當檢查標準開始比對
+    for (let key in newAttributes) {
+        // 若找到 key 是舊屬性有, 但新屬性沒有的(表示為移除的), 記錄到 logAttributes
+        if (!oldAttributes.hasOwnProperty(key)) {
+            logAttributes[key] = newAttributes[key];
+        }
+    }
+
+    // 回傳整個屬性的 log
+    return logAttributes;
+}
+
 function fiberDiffParent(oldNode, newNode, patches) {
     if (!oldNode) {
         // 若這次沒有舊節點, 表示該節點是全新的, 紀錄上沒有
@@ -242,7 +269,8 @@ function fiberDiffParent(oldNode, newNode, patches) {
 
         // 節點 type 相同, 表示需要檢查有哪些可以複用
         if(oldNode.type === newNode.type)  {
-            // todo add this
+
+            let logAttributes = fiberDiffAttribute(oldNode.props, newNode.props);
         }
     }
 }
